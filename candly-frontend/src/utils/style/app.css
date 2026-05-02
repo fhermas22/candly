@@ -1,0 +1,238 @@
+/* Aura Tech theme (CSS equivalent of Tailwind config) */
+
+:root {
+  /* ─── AURA TECH COLOR PALETTE ────────────────────────────────────────── */
+  --navy-950: #010511;
+  --navy-900: #020617;
+  --navy-800: #0a1628;
+  --navy-700: #0f2040;
+  --navy-600: #162847;
+
+  --cyan-aura: #22d3ee;
+  --cyan-dim: #0e7490;
+  --cyan-glow: #67e8f9;
+
+  --emerald-aura: #10b981;
+  --emerald-dim: #065f46;
+
+  --rose-aura: #f43f5e;
+  --rose-dim: #881337;
+
+  --amber-aura: #f59e0b;
+
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+
+  /* ─── SEMANTIC TOKENS (use these in app) ─────────────────────────────── */
+  --bg: var(--navy-900);
+  --bg-2: var(--navy-800);
+  --surface: var(--navy-800);
+  --surface-2: var(--navy-700);
+  --border: color-mix(in oklab, var(--navy-600) 85%, transparent);
+  --text: var(--slate-100);
+  --text-2: var(--slate-400);
+  --text-3: var(--slate-500);
+
+  --accent: var(--cyan-aura);
+  --accent-dim: var(--cyan-dim);
+
+  /* ─── TYPOGRAPHY ─────────────────────────────────────────────────────── */
+  --font-heading: Montserrat, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+
+  /* ─── GLASSMORPHISM ──────────────────────────────────────────────────── */
+  --glass: rgba(15, 32, 64, 0.6);
+  --glass-dark: rgba(2, 6, 23, 0.8);
+  --glass-card: rgba(10, 22, 40, 0.7);
+
+  /* ─── RADII ──────────────────────────────────────────────────────────── */
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  /* ─── SHADOWS (NEON GLOW) ────────────────────────────────────────────── */
+  --shadow-glow-cyan: 0 0 16px rgba(34, 211, 238, 0.35), 0 0 40px rgba(34, 211, 238, 0.15);
+  --shadow-glow-cyan-sm: 0 0 8px rgba(34, 211, 238, 0.25);
+  --shadow-glow-emerald: 0 0 16px rgba(16, 185, 129, 0.35);
+  --shadow-glow-rose: 0 0 16px rgba(244, 63, 94, 0.35);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 211, 238, 0.12);
+  --shadow-inset-glow: inset 0 1px 0 rgba(34, 211, 238, 0.15);
+
+  /* ─── BACKDROP BLUR ──────────────────────────────────────────────────── */
+  --blur-xs: 2px;
+  --blur-glass: 12px;
+  --blur-heavy: 24px;
+
+  /* ─── BACKGROUND IMAGES ──────────────────────────────────────────────── */
+  --bg-aura-mesh: radial-gradient(ellipse at 20% 50%, rgba(34, 211, 238, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+  --bg-hero-glow: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34, 211, 238, 0.15) 0%, transparent 70%);
+  --bg-card-shine: linear-gradient(135deg, rgba(34, 211, 238, 0.05) 0%, transparent 50%);
+  --bg-border-glow: linear-gradient(
+    135deg,
+    rgba(34, 211, 238, 0.4) 0%,
+    rgba(34, 211, 238, 0.05) 50%,
+    rgba(16, 185, 129, 0.15) 100%
+  );
+  --bg-sidebar-fade: linear-gradient(180deg, rgba(2, 6, 23, 0) 0%, rgba(2, 6, 23, 0.9) 100%);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* simple light fallback */
+    --bg: #ffffff;
+    --bg-2: #f8fafc;
+    --surface: #ffffff;
+    --surface-2: #f1f5f9;
+    --border: rgba(2, 6, 23, 0.12);
+    --text: #0f172a;
+    --text-2: #334155;
+    --text-3: #64748b;
+    color-scheme: light;
+  }
+}
+
+/* ─── ANIMATIONS ───────────────────────────────────────────────────────── */
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(34, 211, 238, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes slide-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes border-spin {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ─── UTILITIES (use like Tailwind classes) ────────────────────────────── */
+.font-heading {
+  font-family: var(--font-heading);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.text-2xs {
+  font-size: 0.65rem;
+  line-height: 1rem;
+}
+
+.bg-glass {
+  background-color: var(--glass);
+  backdrop-filter: blur(var(--blur-glass));
+}
+.bg-glass-dark {
+  background-color: var(--glass-dark);
+  backdrop-filter: blur(var(--blur-glass));
+}
+.bg-glass-card {
+  background-color: var(--glass-card);
+  backdrop-filter: blur(var(--blur-glass));
+}
+
+.shadow-glow-cyan {
+  box-shadow: var(--shadow-glow-cyan);
+}
+.shadow-glow-cyan-sm {
+  box-shadow: var(--shadow-glow-cyan-sm);
+}
+.shadow-glow-emerald {
+  box-shadow: var(--shadow-glow-emerald);
+}
+.shadow-glow-rose {
+  box-shadow: var(--shadow-glow-rose);
+}
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-card-hover:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.bg-aura-mesh {
+  background-image: var(--bg-aura-mesh);
+}
+.bg-hero-glow {
+  background-image: var(--bg-hero-glow);
+}
+.bg-card-shine {
+  background-image: var(--bg-card-shine);
+}
+.bg-border-glow {
+  background-image: var(--bg-border-glow);
+}
+.bg-sidebar-fade {
+  background-image: var(--bg-sidebar-fade);
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease forwards;
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease forwards;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+.animate-slide-in-left {
+  animation: slide-in-left 0.4s ease forwards;
+}
