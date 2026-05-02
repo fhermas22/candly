@@ -398,6 +398,9 @@
 
 /* ── Utility Extensions ──────────────────────────────────── */
 @layer utilities {
+  .font-heading { font-family: 'Montserrat', sans-serif; }
+  .font-body { font-family: 'Inter', sans-serif; }
+
   .animate-delay-100 { animation-delay: 0.1s; }
   .animate-delay-200 { animation-delay: 0.2s; }
   .animate-delay-300 { animation-delay: 0.3s; }
