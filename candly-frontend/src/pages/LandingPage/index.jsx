@@ -10,6 +10,119 @@
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
+// ─── Icons (SVG, pro, sans emojis) ────────────────────────────────────────────
+function Icon({ name, className = "w-6 h-6", title }) {
+  const common = {
+    className,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    "aria-hidden": title ? undefined : true,
+    role: title ? "img" : "presentation",
+  };
+
+  const pathsByName = {
+    user: (
+      <>
+        <path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </>
+    ),
+    search: (
+      <>
+        <path
+          d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </>
+    ),
+    bolt: (
+      <path
+        d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    ),
+    check: (
+      <path
+        d="M20 6 9 17l-5-5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    ),
+    shield: (
+      <path
+        d="M12 2 20 6v6c0 5-3.2 9.4-8 10-4.8-.6-8-5-8-10V6l8-4Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    ),
+    document: (
+      <>
+        <path
+          d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5Z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path d="M14 2v5h5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M8 13h8M8 17h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </>
+    ),
+    chart: (
+      <>
+        <path d="M4 19V5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M8 15v-5M12 15V7M16 15v-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </>
+    ),
+    sliders: (
+      <>
+        <path d="M4 6h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M7 6v12M17 18V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M7 10h6M11 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </>
+    ),
+    globe: (
+      <>
+        <path
+          d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <path d="M2 12h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22c-3-3-4.5-6.5-4.5-10S9 5 12 2Z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </>
+    ),
+  };
+
+  const body = pathsByName[name];
+  if (!body) return null;
+
+  return (
+    <svg {...common}>
+      {title ? <title>{title}</title> : null}
+      {body}
+    </svg>
+  );
+}
+
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 const MOCK_JOBS = [
   {
@@ -54,19 +167,19 @@ const MOCK_JOBS = [
 ];
 
 const MOCK_STEPS = [
-  { num: "01", icon: "👤", title: "Créez votre profil", desc: "Renseignez vos informations, téléchargez votre photo et votre CV en quelques secondes." },
-  { num: "02", icon: "🔍", title: "Explorez les offres", desc: "Parcourez les annonces filtrées selon vos compétences, localisation et ambitions." },
-  { num: "03", icon: "⚡", title: "Postulez en 1 clic", desc: "Envoyez votre candidature instantanément et suivez son évolution depuis votre tableau de bord." },
-  { num: "04", icon: "✅", title: "Recevez une réponse", desc: "L'administrateur examine votre profil et vous notifie directement de la décision finale." },
+  { num: "01", icon: "user", title: "Créez votre profil", desc: "Renseignez vos informations, téléchargez votre photo et votre CV en quelques secondes." },
+  { num: "02", icon: "search", title: "Explorez les offres", desc: "Parcourez les annonces filtrées selon vos compétences, localisation et ambitions." },
+  { num: "03", icon: "bolt", title: "Postulez en 1 clic", desc: "Envoyez votre candidature instantanément et suivez son évolution depuis votre tableau de bord." },
+  { num: "04", icon: "check", title: "Recevez une réponse", desc: "L'administrateur examine votre profil et vous notifie directement de la décision finale." },
 ];
 
 const MOCK_FEATURES = [
-  { icon: "🛡️", iconBg: "rgba(34,211,238,0.1)", iconBorder: "rgba(34,211,238,0.2)", title: "Sécurité renforcée", desc: "Authentification JWT/Sanctum avec redirection intelligente selon votre rôle." },
-  { icon: "📄", iconBg: "rgba(16,185,129,0.1)", iconBorder: "rgba(16,185,129,0.2)", title: "Gestion de profil complète", desc: "Upload de photo optimisé, CV PDF jusqu'à 5 Mo, et bio personnalisée." },
-  { icon: "📊", iconBg: "rgba(245,158,11,0.1)", iconBorder: "rgba(245,158,11,0.2)", title: "Suivi en temps réel", desc: "Tableaux de bord avec badges de statut colorés — Pending, Accepted, Rejected." },
-  { icon: "⚡", iconBg: "rgba(244,63,94,0.1)", iconBorder: "rgba(244,63,94,0.2)", title: "Performance optimisée", desc: "Mise en cache des annonces, skeleton loaders et animations Framer Motion fluides." },
-  { icon: "🎛️", iconBg: "rgba(34,211,238,0.1)", iconBorder: "rgba(34,211,238,0.15)", title: "Panneau Admin puissant", desc: "Gestion CRUD des offres, modération des comptes et revue des candidatures." },
-  { icon: "🌐", iconBg: "rgba(16,185,129,0.1)", iconBorder: "rgba(16,185,129,0.15)", title: "Design \"Aura Tech\"", desc: "Dark mode premium, Glassmorphism, néons Cyan et esthétique haut de gamme." },
+  { icon: "shield", iconBg: "rgba(34,211,238,0.1)", iconBorder: "rgba(34,211,238,0.2)", title: "Sécurité renforcée", desc: "Authentification JWT/Sanctum avec redirection intelligente selon votre rôle." },
+  { icon: "document", iconBg: "rgba(16,185,129,0.1)", iconBorder: "rgba(16,185,129,0.2)", title: "Gestion de profil complète", desc: "Upload de photo optimisé, CV PDF jusqu'à 5 Mo, et bio personnalisée." },
+  { icon: "chart", iconBg: "rgba(245,158,11,0.1)", iconBorder: "rgba(245,158,11,0.2)", title: "Suivi en temps réel", desc: "Tableaux de bord avec badges de statut colorés — Pending, Accepted, Rejected." },
+  { icon: "bolt", iconBg: "rgba(244,63,94,0.1)", iconBorder: "rgba(244,63,94,0.2)", title: "Performance optimisée", desc: "Mise en cache des annonces, skeleton loaders et animations Framer Motion fluides." },
+  { icon: "sliders", iconBg: "rgba(34,211,238,0.1)", iconBorder: "rgba(34,211,238,0.15)", title: "Panneau Admin puissant", desc: "Gestion CRUD des offres, modération des comptes et revue des candidatures." },
+  { icon: "globe", iconBg: "rgba(16,185,129,0.1)", iconBorder: "rgba(16,185,129,0.15)", title: "Design \"Aura Tech\"", desc: "Dark mode premium, Glassmorphism, néons Cyan et esthétique haut de gamme." },
 ];
 
 const POPULAR_TAGS = ["React", "Laravel", "UI/UX Design", "DevOps", "Product Manager", "Data Science"];
@@ -114,7 +227,9 @@ function Logo() {
           boxShadow: "0 0 16px rgba(34,211,238,0.45)",
         }}
       >
-        <span className="font-heading font-black text-navy-900 text-sm">C</span>
+        <span className="font-heading font-black text-sm" style={{ color: "var(--navy-900)" }}>
+          C
+        </span>
         <span
           className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
           style={{ background: "#10B981", boxShadow: "0 0 6px rgba(16,185,129,0.8)" }}
@@ -144,20 +259,45 @@ function SectionTag({ children }) {
 
 /** Navigation bar */
 function Navbar() {
+  const [open, setOpen] = useState(false);
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[5%] h-16 glass-dark"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 h-16 glass-dark"
     >
       <Logo />
-      <div className="flex items-center gap-2">
-        <button className="btn-ghost hidden sm:flex">Offres</button>
-        <button className="btn-ghost hidden sm:flex">Comment ça marche</button>
+      <div className="hidden md:flex items-center gap-2">
+        <button className="btn-ghost">Offres</button>
+        <button className="btn-ghost">Comment ça marche</button>
         <button className="btn-ghost">Connexion</button>
         <button className="btn-primary">Créer un compte</button>
       </div>
+
+      <div className="md:hidden flex items-center gap-2">
+        <button className="btn-ghost" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-label="Menu">
+          <span className="inline-flex items-center gap-2 text-sm">
+            <span>Menu</span>
+            <Icon name="sliders" className="w-5 h-5" />
+          </span>
+        </button>
+      </div>
+
+      {open ? (
+        <div
+          className="absolute top-16 left-0 right-0 md:hidden px-4 py-4"
+          style={{ background: "rgba(2, 6, 23, 0.92)", borderBottom: "1px solid rgba(34,211,238,0.08)" }}
+        >
+          <div className="flex flex-col gap-2">
+            <button className="btn-secondary w-full justify-center">Offres</button>
+            <button className="btn-secondary w-full justify-center">Comment ça marche</button>
+            <button className="btn-secondary w-full justify-center">Connexion</button>
+            <button className="btn-primary w-full justify-center">Créer un compte</button>
+          </div>
+        </div>
+      ) : null}
     </motion.nav>
   );
 }
@@ -169,7 +309,7 @@ function HeroSection() {
 
   return (
     <section
-      className="relative min-h-screen flex flex-col items-center justify-center text-center px-[5%] pt-24 pb-20 overflow-hidden"
+      className="relative min-h-svh flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-10 pt-24 pb-20 overflow-hidden"
     >
       {/* Grid overlay */}
       <div
@@ -207,7 +347,8 @@ function HeroSection() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="font-heading text-[clamp(2.4rem,5.5vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6 max-w-3xl"
+        className="font-heading text-[clamp(2.1rem,7vw,4.2rem)] font-black leading-[1.08] tracking-tight mb-6 max-w-3xl"
+        style={{ color: "var(--text-primary)" }}
       >
         Votre prochaine opportunité{" "}
         <span
@@ -227,8 +368,8 @@ function HeroSection() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="text-[clamp(1rem,1.8vw,1.15rem)] max-w-lg mb-11 leading-relaxed"
-        style={{ color: "#94a3b8" }}
+        className="text-[clamp(0.98rem,2.2vw,1.15rem)] max-w-lg mb-8 sm:mb-11 leading-relaxed"
+        style={{ color: "var(--text-secondary)" }}
       >
         Candly connecte les meilleurs talents aux entreprises qui comptent. Déposez votre profil, postulez en un clic, suivez chaque étape en temps réel.
       </motion.p>
@@ -248,7 +389,7 @@ function HeroSection() {
       >
         {/* Search icon */}
         <svg
-          className="w-4 h-4 flex-shrink-0 mr-3"
+          className="w-4 h-4 shrink-0 mr-3"
           style={{ color: "#64748b" }}
           viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
         >
@@ -266,7 +407,7 @@ function HeroSection() {
         />
 
         {/* Divider */}
-        <div className="w-px h-7 mx-2 flex-shrink-0" style={{ background: "rgba(34,211,238,0.1)" }} />
+        <div className="w-px h-7 mx-2 shrink-0" style={{ background: "rgba(34,211,238,0.1)" }} />
 
         <input
           type="text"
@@ -277,7 +418,7 @@ function HeroSection() {
           style={{ color: "#f1f5f9", maxWidth: "140px" }}
         />
 
-        <button className="btn-primary ml-2 flex-shrink-0 whitespace-nowrap">
+        <button className="btn-primary ml-2 shrink-0 whitespace-nowrap">
           Rechercher
         </button>
       </motion.div>
@@ -374,7 +515,7 @@ function JobCard({ job, index }) {
       {/* Card top */}
       <div className="flex items-start justify-between mb-4">
         <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center font-heading font-black text-sm flex-shrink-0"
+          className="w-11 h-11 rounded-xl flex items-center justify-center font-heading font-black text-sm shrink-0"
           style={{ background: job.logoBg, color: job.logoColor, border: `1px solid ${job.logoColor}20` }}
         >
           {job.initials}
@@ -464,19 +605,19 @@ function JobsSection() {
 function HowItWorksSection() {
   return (
     <section
-      className="px-[5%] py-24"
+      className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24"
       style={{
         background: "rgba(10,22,40,0.4)",
         borderTop: "1px solid rgba(34,211,238,0.07)",
         borderBottom: "1px solid rgba(34,211,238,0.07)",
       }}
     >
-      <AnimatedSection className="text-center max-w-xl mx-auto mb-16">
+      <AnimatedSection className="text-center max-w-xl mx-auto mb-10 sm:mb-16">
         <SectionTag>Processus simplifié</SectionTag>
-        <h2 className="font-heading text-[clamp(1.8rem,3vw,2.5rem)] font-black tracking-tight mb-4" style={{ color: "#f1f5f9" }}>
+        <h2 className="font-heading text-[clamp(1.7rem,4.5vw,2.5rem)] font-black tracking-tight mb-4" style={{ color: "var(--text-primary)" }}>
           Postuler n'a jamais été aussi simple
         </h2>
-        <p className="text-base" style={{ color: "#94a3b8", lineHeight: 1.7 }}>
+        <p className="text-base" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
           Trois étapes suffisent pour décrocher votre prochaine opportunité.
         </p>
       </AnimatedSection>
@@ -523,7 +664,7 @@ function HowItWorksSection() {
                 boxShadow: "0 0 16px rgba(34,211,238,0.12)",
               }}
             >
-              {step.icon}
+              <Icon name={step.icon} className="w-6 h-6" title={step.title} />
             </div>
             <h3 className="font-heading font-bold text-base mb-2.5" style={{ color: "#f1f5f9" }}>
               {step.title}
@@ -541,13 +682,13 @@ function HowItWorksSection() {
 /** Features section */
 function FeaturesSection() {
   return (
-    <section className="px-[5%] py-24">
+    <section className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24">
       <AnimatedSection className="max-w-lg mb-14">
         <SectionTag>Pourquoi Candly</SectionTag>
-        <h2 className="font-heading text-[clamp(1.8rem,3vw,2.5rem)] font-black tracking-tight mb-4" style={{ color: "#f1f5f9" }}>
+        <h2 className="font-heading text-[clamp(1.7rem,4.5vw,2.5rem)] font-black tracking-tight mb-4" style={{ color: "var(--text-primary)" }}>
           Une expérience premium,<br />de A à Z
         </h2>
-        <p className="text-base leading-relaxed" style={{ color: "#94a3b8" }}>
+        <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
           Tout ce dont vous avez besoin pour gérer votre carrière avec élégance et efficacité.
         </p>
       </AnimatedSection>
@@ -572,7 +713,7 @@ function FeaturesSection() {
               className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-5"
               style={{ background: f.iconBg, border: `1px solid ${f.iconBorder}` }}
             >
-              {f.icon}
+              <Icon name={f.icon} className="w-6 h-6" title={f.title} />
             </div>
             <h3 className="font-heading font-bold text-sm mb-2" style={{ color: "#f1f5f9" }}>
               {f.title}
