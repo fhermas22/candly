@@ -1,9 +1,6 @@
 /**
- * Landing
- * Candly – Public landing page with Hero, Job Feed, How It Works,
- * Features, and CTA sections. Uses Framer Motion for all animations.
- *
- * Mock data is localized in /src/data/mockJobs.js
+ * Landing page for Candly.
+ * Hero, Job Feed, Features, CTA. Uses Framer Motion.
  */
 
 import { useState, useRef } from "react";

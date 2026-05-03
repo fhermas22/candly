@@ -1,8 +1,6 @@
 /**
- * Auth
- * Candly – Login & Register page with split layout.
- * Left panel: branding + testimonial | Right panel: tabbed auth forms.
- *
+ * Auth page for Candly.
+ * Login & Register with split layout.
  */
 
 import { useState, useId } from "react";

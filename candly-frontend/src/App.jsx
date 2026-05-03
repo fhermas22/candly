@@ -3,7 +3,7 @@ import { BrowserRouter } from "react-router";
 import AppRoutes from "./routes/AppRoutes";
 
 /**
- * Racine de l’app : historique HTML5 + définition des routes.
+ * App root: HTML5 history + routes definition.
  */
 export default function App() {
   return (

@@ -10,8 +10,8 @@ import NotFound from "../pages/NotFound";
 import { ROUTES } from "./paths";
 
 /**
- * Arborescence des routes de l’application Candly.
- * Layout candidat et admin : routes relatives sous un layout sans segment (pathless).
+ * Application routes tree.
+ * Candidate and admin layouts: relative routes under pathless layout.
  */
 export default function AppRoutes() {
   return (
@@ -23,7 +23,7 @@ export default function AppRoutes() {
         <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
         <Route
           path={ROUTES.OFFRES}
-          element={<PlaceholderPage title="Rechercher des offres" />}
+          element={<PlaceholderPage title="Job Search" />}
         />
         <Route
           path={ROUTES.CANDIDATURES}

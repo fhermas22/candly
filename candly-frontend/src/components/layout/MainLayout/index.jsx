@@ -1,14 +1,7 @@
 /**
- * MainLayout
- * Candly – Primary layout shell: Navbar (top) + Sidebar (left) + Page content.
- * Wraps all authenticated pages. Public pages (Landing, Auth) bypass this layout.
- *
- * Usage (React Router) :
- *   <Route element={<MainLayout userRole="candidate" />}>
- *     <Route path="dashboard" element={<Dashboard />} />
- *   </Route>
- *
- * Mode hors routeur : passer `children` (ex. storybook) — sinon le contenu vient de `<Outlet />`.
+ * MainLayout for Candly.
+ * Navbar (top) + Sidebar (left) + Page content.
+ * Wraps authenticated pages.
  */
 
 import { useState } from "react";
@@ -37,7 +30,7 @@ const MOCK_USER = {
 const CANDIDATE_NAV = [
   {
     id: "dashboard",
-    label: "Tableau de bord",
+    label: "Dashboard",
     href: "/dashboard",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -50,7 +43,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "jobs",
-    label: "Rechercher des offres",
+    label: "Job Search",
     href: "/offres",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -61,7 +54,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "applications",
-    label: "Mes candidatures",
+    label: "My Applications",
     href: "/candidatures",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -73,7 +66,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "profile",
-    label: "Mon profil",
+    label: "My Profile",
     href: "/profil",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -87,7 +80,7 @@ const CANDIDATE_NAV = [
 const ADMIN_NAV = [
   {
     id: "dashboard",
-    label: "Supervision",
+    label: "Dashboard",
     href: "/admin",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -97,7 +90,7 @@ const ADMIN_NAV = [
   },
   {
     id: "jobs-admin",
-    label: "Gestion des offres",
+    label: "Job Management",
     href: "/admin/offres",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -109,7 +102,7 @@ const ADMIN_NAV = [
   },
   {
     id: "users",
-    label: "Gestion des candidats",
+    label: "Candidate Management",
     href: "/admin/candidats",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -121,7 +114,7 @@ const ADMIN_NAV = [
   },
   {
     id: "applications-admin",
-    label: "Revue des candidatures",
+    label: "Application Review",
     href: "/admin/candidatures",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -284,7 +277,7 @@ function Navbar({ user, onMenuToggle, isSidebarOpen, breadcrumbLabel = "Tableau 
           type="button"
           onClick={onMenuToggle}
           className="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-white/5 transition-colors"
-          aria-label="Ouvrir le menu"
+          aria-label="Open menu"
         >
           <motion.div
             animate={{ rotate: isSidebarOpen ? 45 : 0, y: isSidebarOpen ? 7 : 0 }}
@@ -469,8 +462,8 @@ function Sidebar({ user, activeRoute, onNavigate }) {
             type="button"
             className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors shrink-0"
             style={{ color: "#64748b" }}
-            title="Se déconnecter"
-            aria-label="Se déconnecter"
+          title="Sign Out"
+            aria-label="Sign Out"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" width={16} height={16} aria-hidden>
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />

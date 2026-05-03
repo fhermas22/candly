@@ -1,5 +1,5 @@
 /**
- * Chemins centralisés — à réutiliser dans les <Link>, navigate(), etc.
+ * Centralized paths — reuse in <Link>, navigate(), etc.
  */
 export const ROUTES = {
   HOME: "/",
