@@ -13,9 +13,11 @@ import {
   MemoryRouter,
   Routes,
   Route,
+  Link,
 } from "react-router";
 
-import Dashboard from "../../../pages/Dashboard";
+import CandidateDashboard from "../../../pages/CandidateDashboard";
+import { ROUTES } from "../../../routes/paths";
 
 // ─── Mock auth context (replace with real context when API is ready) ──────────
 const MOCK_USER = {
@@ -31,7 +33,7 @@ const CANDIDATE_NAV = [
   {
     id: "dashboard",
     label: "Dashboard",
-    href: "/dashboard",
+    href: ROUTES.DASHBOARD,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -44,7 +46,7 @@ const CANDIDATE_NAV = [
   {
     id: "jobs",
     label: "Job Search",
-    href: "/offres",
+    href: ROUTES.OFFRES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <circle cx="11" cy="11" r="7" />
@@ -55,7 +57,7 @@ const CANDIDATE_NAV = [
   {
     id: "applications",
     label: "My Applications",
-    href: "/candidatures",
+    href: ROUTES.CANDIDATURES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" strokeLinecap="round" />
@@ -67,7 +69,7 @@ const CANDIDATE_NAV = [
   {
     id: "profile",
     label: "My Profile",
-    href: "/profil",
+    href: ROUTES.PROFIL,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <circle cx="12" cy="8" r="4" />
@@ -81,7 +83,7 @@ const ADMIN_NAV = [
   {
     id: "dashboard",
     label: "Dashboard",
-    href: "/admin",
+    href: ROUTES.ADMIN,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" strokeLinecap="round" strokeLinejoin="round" />
@@ -91,7 +93,7 @@ const ADMIN_NAV = [
   {
     id: "jobs-admin",
     label: "Job Management",
-    href: "/admin/offres",
+    href: ROUTES.ADMIN_OFFRES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <rect x="2" y="7" width="20" height="14" rx="2" />
@@ -103,7 +105,7 @@ const ADMIN_NAV = [
   {
     id: "users",
     label: "Candidate Management",
-    href: "/admin/candidats",
+    href: ROUTES.ADMIN_CANDIDATS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" />
@@ -115,7 +117,7 @@ const ADMIN_NAV = [
   {
     id: "applications-admin",
     label: "Application Review",
-    href: "/admin/candidatures",
+    href: ROUTES.ADMIN_CANDIDATURES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" strokeLinecap="round" />
@@ -182,7 +184,7 @@ function CandlyLogo({ compact = false }) {
 }
 
 /** Single sidebar navigation item */
-function NavItem({ item, isActive, index, onNavigate }) {
+function NavItem({ item, isActive, index, onNavClick }) {
   return (
     <motion.div
       custom={index}
@@ -190,9 +192,9 @@ function NavItem({ item, isActive, index, onNavigate }) {
       initial="hidden"
       animate="visible"
     >
-      <button
-        type="button"
-        onClick={() => onNavigate(item.href)}
+      <Link
+        to={item.href}
+        onClick={onNavClick}
         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative"
         style={{
           color: isActive ? "#22D3EE" : "#94a3b8",
@@ -226,7 +228,7 @@ function NavItem({ item, isActive, index, onNavigate }) {
         )}
         <span className="ml-1">{item.icon}</span>
         <span>{item.label}</span>
-      </button>
+      </Link>
     </motion.div>
   );
 }
@@ -255,7 +257,13 @@ function UserAvatar({ user, size = "md" }) {
 }
 
 /** Top Navbar component */
-function Navbar({ user, onMenuToggle, isSidebarOpen, breadcrumbLabel = "Tableau de bord" }) {
+function Navbar({
+  user,
+  onMenuToggle,
+  isSidebarOpen,
+  breadcrumbLabel = "Tableau de bord",
+  onOpenSettings,
+}) {
   const [notifOpen, setNotifOpen] = useState(false);
 
   const roleBadge = user.role === "admin"
@@ -386,6 +394,7 @@ function Navbar({ user, onMenuToggle, isSidebarOpen, breadcrumbLabel = "Tableau 
 
         <button
           type="button"
+          onClick={onOpenSettings}
           className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors"
           style={{ color: "#64748b" }}
           aria-label="Paramètres"
@@ -401,7 +410,7 @@ function Navbar({ user, onMenuToggle, isSidebarOpen, breadcrumbLabel = "Tableau 
 }
 
 /** Left Sidebar component */
-function Sidebar({ user, activeRoute, onNavigate }) {
+function Sidebar({ user, activeRoute, onNavClick }) {
   const navItems = user.role === "admin" ? ADMIN_NAV : CANDIDATE_NAV;
 
   return (
@@ -438,7 +447,7 @@ function Sidebar({ user, activeRoute, onNavigate }) {
             item={item}
             index={i}
             isActive={activeRoute === item.href}
-            onNavigate={onNavigate}
+            onNavClick={onNavClick}
           />
         ))}
       </nav>
@@ -504,9 +513,12 @@ export default function MainLayout({
     navItems.find((item) => item.href === currentRoute)?.label ??
     "Tableau de bord";
 
-  const handleNavigate = (href) => {
+  const closeMobileSidebar = () => {
     setMobileSidebarOpen(false);
-    navigate(href);
+  };
+
+  const handleOpenSettings = () => {
+    navigate(user.role === "admin" ? ROUTES.ADMIN : ROUTES.PROFIL);
   };
 
   const content = children ?? <Outlet />;
@@ -518,13 +530,14 @@ export default function MainLayout({
         onMenuToggle={() => setMobileSidebarOpen((prev) => !prev)}
         isSidebarOpen={mobileSidebarOpen}
         breadcrumbLabel={resolvedBreadcrumb}
+        onOpenSettings={handleOpenSettings}
       />
 
       <div className="hidden lg:block">
         <Sidebar
           user={user}
           activeRoute={currentRoute}
-          onNavigate={handleNavigate}
+          onNavClick={closeMobileSidebar}
         />
       </div>
 
@@ -552,7 +565,7 @@ export default function MainLayout({
               <Sidebar
                 user={user}
                 activeRoute={currentRoute}
-                onNavigate={handleNavigate}
+                onNavClick={closeMobileSidebar}
               />
             </motion.div>
           </>
@@ -586,10 +599,10 @@ export default function MainLayout({
 /** Aperçu : import { LayoutPreview } from '@/components/layout/MainLayout' */
 export function LayoutPreview() {
   return (
-    <MemoryRouter initialEntries={["/dashboard"]}>
+    <MemoryRouter initialEntries={[ROUTES.DASHBOARD]}>
       <Routes>
         <Route element={<MainLayout userRole="candidate" />}>
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<CandidateDashboard />} />
         </Route>
       </Routes>
     </MemoryRouter>
