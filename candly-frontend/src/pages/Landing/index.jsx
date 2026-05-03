@@ -4,11 +4,13 @@
  * Features, and CTA sections. Uses Framer Motion for all animations.
  *
  * Mock data is localized in /src/data/mockJobs.js
- * Replace router links with React Router <Link> tags when wiring up.
  */
 
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import { Link } from "react-router";
+
+import { ROUTES } from "../../routes/paths";
 
 // ─── Icons (SVG, pro, sans emojis) ────────────────────────────────────────────
 function Icon({ name, className = "w-6 h-6", title }) {
@@ -219,7 +221,7 @@ function AnimatedSection({ children, className = "", delay = 0 }) {
 /** Candly logo wordmark */
 function Logo() {
   return (
-    <div className="flex items-center gap-2.5">
+    <Link to={ROUTES.HOME} className="flex items-center gap-2.5">
       <div
         className="relative w-9 h-9 rounded-xl flex items-center justify-center"
         style={{
@@ -238,7 +240,7 @@ function Logo() {
       <span className="font-heading font-bold text-lg" style={{ color: "#f1f5f9" }}>
         Cand<span style={{ color: "#22D3EE" }}>ly</span>
       </span>
-    </div>
+    </Link>
   );
 }
 
@@ -272,10 +274,10 @@ function Navbar() {
         <Logo />
       </div>
       <div className="hidden md:flex items-center gap-2 shrink-0">
-        <button type="button" className="btn-ghost">Offres</button>
-        <button type="button" className="btn-ghost">Comment ça marche</button>
-        <button type="button" className="btn-ghost">Connexion</button>
-        <button type="button" className="btn-primary">Créer un compte</button>
+        <Link to={ROUTES.OFFRES} className="btn-ghost">Offres</Link>
+        <Link to="/#comment-ca-marche" className="btn-ghost">Comment ça marche</Link>
+        <Link to={ROUTES.AUTH} className="btn-ghost">Connexion</Link>
+        <Link to={ROUTES.AUTH} className="btn-primary">Créer un compte</Link>
       </div>
 
       <div className="md:hidden flex shrink-0 items-center">
@@ -304,10 +306,10 @@ function Navbar() {
           style={{ background: "rgba(2, 6, 23, 0.92)", borderBottom: "1px solid rgba(34,211,238,0.08)" }}
         >
           <div className="flex flex-col gap-2">
-            <button type="button" className="btn-secondary w-full justify-center">Offres</button>
-            <button type="button" className="btn-secondary w-full justify-center">Comment ça marche</button>
-            <button type="button" className="btn-secondary w-full justify-center">Connexion</button>
-            <button type="button" className="btn-primary w-full justify-center">Créer un compte</button>
+            <Link to={ROUTES.OFFRES} className="btn-secondary w-full justify-center">Offres</Link>
+            <Link to="/#comment-ca-marche" className="btn-secondary w-full justify-center">Comment ça marche</Link>
+            <Link to={ROUTES.AUTH} className="btn-secondary w-full justify-center">Connexion</Link>
+            <Link to={ROUTES.AUTH} className="btn-primary w-full justify-center">Créer un compte</Link>
           </div>
         </div>
       ) : null}
@@ -624,6 +626,7 @@ function JobsSection() {
 function HowItWorksSection() {
   return (
     <section
+      id="comment-ca-marche"
       className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24"
       style={{
         background: "rgba(10,22,40,0.4)",
