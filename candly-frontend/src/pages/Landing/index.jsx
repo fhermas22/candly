@@ -1,5 +1,5 @@
 /**
- * LandingPage
+ * Landing
  * Candly – Public landing page with Hero, Job Feed, How It Works,
  * Features, and CTA sections. Uses Framer Motion for all animations.
  *
@@ -266,22 +266,35 @@ function Navbar() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-10 h-16 glass-dark"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-10 h-16 glass-dark"
     >
-      <Logo />
-      <div className="hidden md:flex items-center gap-2">
-        <button className="btn-ghost">Offres</button>
-        <button className="btn-ghost">Comment ça marche</button>
-        <button className="btn-ghost">Connexion</button>
-        <button className="btn-primary">Créer un compte</button>
+      <div className="flex min-w-0 shrink-0 items-center">
+        <Logo />
+      </div>
+      <div className="hidden md:flex items-center gap-2 shrink-0">
+        <button type="button" className="btn-ghost">Offres</button>
+        <button type="button" className="btn-ghost">Comment ça marche</button>
+        <button type="button" className="btn-ghost">Connexion</button>
+        <button type="button" className="btn-primary">Créer un compte</button>
       </div>
 
-      <div className="md:hidden flex items-center gap-2">
-        <button className="btn-ghost" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-label="Menu">
-          <span className="inline-flex items-center gap-2 text-sm">
-            <span>Menu</span>
-            <Icon name="sliders" className="w-5 h-5" />
-          </span>
+      <div className="md:hidden flex shrink-0 items-center">
+        <button
+          type="button"
+          className="btn-ghost inline-flex h-10 w-10 items-center justify-center p-0"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label="Ouvrir le menu"
+        >
+          <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+            {open ? (
+              <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
+            ) : (
+              <>
+                <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+              </>
+            )}
+          </svg>
         </button>
       </div>
 
@@ -291,10 +304,10 @@ function Navbar() {
           style={{ background: "rgba(2, 6, 23, 0.92)", borderBottom: "1px solid rgba(34,211,238,0.08)" }}
         >
           <div className="flex flex-col gap-2">
-            <button className="btn-secondary w-full justify-center">Offres</button>
-            <button className="btn-secondary w-full justify-center">Comment ça marche</button>
-            <button className="btn-secondary w-full justify-center">Connexion</button>
-            <button className="btn-primary w-full justify-center">Créer un compte</button>
+            <button type="button" className="btn-secondary w-full justify-center">Offres</button>
+            <button type="button" className="btn-secondary w-full justify-center">Comment ça marche</button>
+            <button type="button" className="btn-secondary w-full justify-center">Connexion</button>
+            <button type="button" className="btn-primary w-full justify-center">Créer un compte</button>
           </div>
         </div>
       ) : null}
@@ -318,7 +331,7 @@ function HeroSection() {
           backgroundImage:
             "linear-gradient(rgba(34,211,238,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(34,211,238,0.04) 1px,transparent 1px)",
           backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse 70% 70% at 50% 50%,black 20%,transparent 80%)",
+          maskImage: "radial-gradient(ellipse 85% 75% at 50% 35%, black 0%, transparent 72%)",
         }}
       />
 
@@ -390,6 +403,8 @@ function HeroSection() {
         {/* Search icon */}
         <svg
           className="w-4 h-4 shrink-0 mr-3"
+          width={16}
+          height={16}
           style={{ color: "#64748b" }}
           viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
         >
@@ -488,7 +503,7 @@ function HeroSection() {
               >
                 {stat.num}
               </div>
-              <div className="text-xs mt-1 font-medium tracking-wide" style={{ color: "#64748b" }}>
+              <div className="text-sm mt-1.5 font-medium tracking-wide" style={{ color: "#94a3b8" }}>
                 {stat.label}
               </div>
             </div>
@@ -510,10 +525,10 @@ function JobCard({ job, index }) {
       initial={{ opacity: 0, y: 28 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
-      className="glass-card p-6 cursor-pointer"
+      className="glass-card flex flex-col p-6 cursor-pointer"
     >
       {/* Card top */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between gap-3 mb-4">
         <div
           className="w-11 h-11 rounded-xl flex items-center justify-center font-heading font-black text-sm shrink-0"
           style={{ background: job.logoBg, color: job.logoColor, border: `1px solid ${job.logoColor}20` }}
@@ -521,12 +536,12 @@ function JobCard({ job, index }) {
           {job.initials}
         </div>
         {job.badge === "new" ? (
-          <span className="badge" style={{ background: "rgba(34,211,238,0.12)", color: "#22D3EE", border: "1px solid rgba(34,211,238,0.25)", fontSize: "10px" }}>
+          <span className="badge shrink-0" style={{ background: "rgba(34,211,238,0.12)", color: "#22D3EE", border: "1px solid rgba(34,211,238,0.25)", fontSize: "11px" }}>
             Nouveau
           </span>
         ) : (
-          <span className="badge" style={{ background: "rgba(244,63,94,0.12)", color: "#F43F5E", border: "1px solid rgba(244,63,94,0.25)", fontSize: "10px" }}>
-            🔥 Urgent
+          <span className="badge shrink-0" style={{ background: "rgba(244,63,94,0.12)", color: "#F43F5E", border: "1px solid rgba(244,63,94,0.25)", fontSize: "11px" }}>
+            Urgent
           </span>
         )}
       </div>
@@ -534,17 +549,17 @@ function JobCard({ job, index }) {
       <h3 className="font-heading font-bold text-base mb-1" style={{ color: "#f1f5f9" }}>
         {job.title}
       </h3>
-      <p className="text-xs mb-4" style={{ color: "#94a3b8" }}>
+      <p className="text-sm mb-4 leading-snug" style={{ color: "#94a3b8" }}>
         {job.company} · {job.location}
       </p>
 
       {/* Tags */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
+      <div className="flex flex-wrap gap-2 mb-5">
         {job.tags.map((t) => (
           <span
             key={t}
-            className="text-xs px-2.5 py-1 rounded-md"
-            style={{ background: "rgba(255,255,255,0.05)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.07)" }}
+            className="text-xs px-3 py-1.5 rounded-md leading-tight"
+            style={{ background: "rgba(255,255,255,0.06)", color: "#cbd5e1", border: "1px solid rgba(255,255,255,0.1)" }}
           >
             {t}
           </span>
@@ -553,20 +568,20 @@ function JobCard({ job, index }) {
 
       {/* Footer */}
       <div
-        className="flex items-center justify-between pt-4"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+        className="mt-auto flex items-center justify-between gap-4 pt-4"
+        style={{ borderTop: "1px solid rgba(34,211,238,0.12)" }}
       >
-        <div>
-          <div className="font-heading font-bold text-sm" style={{ color: "#10B981" }}>{job.salary}</div>
-          <div className="text-xs mt-0.5 flex items-center gap-1" style={{ color: "#64748b" }}>
-            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <div className="min-w-0">
+          <div className="font-heading font-bold text-sm sm:text-base" style={{ color: "#10B981" }}>{job.salary}</div>
+          <div className="text-sm mt-1 flex items-center gap-1.5" style={{ color: "#94a3b8" }}>
+            <svg className="w-3.5 h-3.5 shrink-0" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" strokeLinecap="round" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            {job.mode}
+            <span className="truncate">{job.mode}</span>
           </div>
         </div>
-        <button className="btn-secondary text-xs px-4 py-2">Postuler →</button>
+        <button type="button" className="btn-secondary text-sm px-4 py-2.5 shrink-0 font-semibold">Postuler →</button>
       </div>
     </motion.div>
   );
@@ -576,17 +591,21 @@ function JobCard({ job, index }) {
 function JobsSection() {
   return (
     <section className="px-[5%] py-20">
-      <div className="flex justify-between items-end mb-11">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-11">
         <AnimatedSection>
           <SectionTag>Opportunités récentes</SectionTag>
           <h2 className="font-heading text-[clamp(1.8rem,3vw,2.5rem)] font-black tracking-tight" style={{ color: "#f1f5f9" }}>
             Dernières offres publiées
           </h2>
         </AnimatedSection>
-        <AnimatedSection>
-          <button className="btn-ghost flex items-center gap-2 text-sm font-semibold" style={{ color: "#22D3EE" }}>
+        <AnimatedSection className="shrink-0">
+          <button
+            type="button"
+            className="btn-ghost inline-flex items-center gap-2 text-sm font-semibold whitespace-nowrap"
+            style={{ color: "#22D3EE" }}
+          >
             Voir toutes les offres
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-4 h-4 shrink-0" width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
               <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -617,7 +636,7 @@ function HowItWorksSection() {
         <h2 className="font-heading text-[clamp(1.7rem,4.5vw,2.5rem)] font-black tracking-tight mb-4" style={{ color: "var(--text-primary)" }}>
           Postuler n'a jamais été aussi simple
         </h2>
-        <p className="text-base" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+        <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{ color: "#cbd5e1", lineHeight: 1.7 }}>
           Trois étapes suffisent pour décrocher votre prochaine opportunité.
         </p>
       </AnimatedSection>
@@ -792,7 +811,7 @@ function Footer() {
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function LandingPage() {
+export default function Landing() {
   return (
     <div className="min-h-screen">
       <Navbar />
