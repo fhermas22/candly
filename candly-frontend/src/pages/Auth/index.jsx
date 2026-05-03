@@ -3,11 +3,16 @@
  * Login & Register with split layout.
  */
 
-import { useState, useId } from "react";
+import { useState, useId, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
-import { ROUTES } from "../../routes/paths";
+import {
+  ROUTES,
+  AUTH_MODE,
+  homeWithHash,
+  LANDING_ANCHOR,
+} from "../../routes/paths";
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 const formVariants = {
@@ -160,13 +165,13 @@ function LoginForm({ onSwitch }) {
         />
 
         <div className="text-right mb-6 -mt-1">
-          <button
-            type="button"
-            className="text-xs transition-opacity hover:opacity-100"
+          <a
+            href="mailto:contact@candly.io?subject=Candly%20%E2%80%94%20R%C3%A9initialisation%20du%20mot%20de%20passe"
+            className="text-xs transition-opacity hover:opacity-100 inline-block"
             style={{ color: "#22D3EE", opacity: 0.8 }}
           >
             Mot de passe oublié ?
-          </button>
+          </a>
         </div>
 
         <button type="submit" className="btn-primary w-full justify-center py-3 text-sm mb-5">
@@ -240,13 +245,21 @@ function RegisterForm({ onSwitch }) {
 
       <p className="text-center text-xs mt-5 leading-relaxed" style={{ color: "#475569" }}>
         En vous inscrivant, vous acceptez nos{" "}
-        <button type="button" className="underline-offset-2 hover:underline" style={{ color: "#22D3EE", cursor: "pointer" }}>
+        <Link
+          to={homeWithHash(LANDING_ANCHOR.LEGAL)}
+          className="underline-offset-2 hover:underline"
+          style={{ color: "#22D3EE" }}
+        >
           Conditions d&apos;utilisation
-        </button>{" "}
+        </Link>{" "}
         et notre{" "}
-        <button type="button" className="underline-offset-2 hover:underline" style={{ color: "#22D3EE", cursor: "pointer" }}>
+        <Link
+          to={homeWithHash(LANDING_ANCHOR.PRIVACY)}
+          className="underline-offset-2 hover:underline"
+          style={{ color: "#22D3EE" }}
+        >
           Politique de confidentialité
-        </button>
+        </Link>
       </p>
 
       <p className="text-center text-xs mt-3" style={{ color: "#475569" }}>
@@ -345,7 +358,20 @@ function BrandingPanel() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Auth() {
-  const [activeTab, setActiveTab] = useState("login");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const modeFromUrl = searchParams.get("mode");
+  const activeTab =
+    modeFromUrl === AUTH_MODE.REGISTER ? "register" : "login";
+
+  const setAuthTab = useCallback(
+    (tab) => {
+      setSearchParams(
+        { mode: tab === "register" ? AUTH_MODE.REGISTER : AUTH_MODE.LOGIN },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
 
   const tabs = [
     { id: "login", label: "Connexion" },
@@ -393,7 +419,7 @@ export default function Auth() {
               type="button"
               role="tab"
               aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => setAuthTab(tab.id)}
               className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
               style={{
                 color: activeTab === tab.id ? "#22D3EE" : "#64748b",
@@ -408,9 +434,9 @@ export default function Auth() {
 
         <AnimatePresence mode="wait">
           {activeTab === "login" ? (
-            <LoginForm key="login" onSwitch={() => setActiveTab("register")} />
+            <LoginForm key="login" onSwitch={() => setAuthTab("register")} />
           ) : (
-            <RegisterForm key="register" onSwitch={() => setActiveTab("login")} />
+            <RegisterForm key="register" onSwitch={() => setAuthTab("login")} />
           )}
         </AnimatePresence>
       </div>
