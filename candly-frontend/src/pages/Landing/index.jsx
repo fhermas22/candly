@@ -3,11 +3,17 @@
  * Hero, Job Feed, Features, CTA. Uses Framer Motion.
  */
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
-import { ROUTES } from "../../routes/paths";
+import {
+  ROUTES,
+  AUTH_MODE,
+  authPath,
+  homeWithHash,
+  LANDING_ANCHOR,
+} from "../../routes/paths";
 
 // ─── Icons (SVG, pro, sans emojis) ────────────────────────────────────────────
 function Icon({ name, className = "w-6 h-6", title }) {
@@ -272,9 +278,9 @@ function Navbar() {
       </div>
       <div className="hidden md:flex items-center gap-2 shrink-0">
         <Link to={ROUTES.OFFRES} className="btn-ghost">Offres</Link>
-        <Link to="/#comment-ca-marche" className="btn-ghost">Comment ça marche</Link>
-        <Link to={ROUTES.AUTH} className="btn-ghost">Connexion</Link>
-        <Link to={ROUTES.AUTH} className="btn-primary">Créer un compte</Link>
+        <Link to={homeWithHash(LANDING_ANCHOR.HOW_IT_WORKS)} className="btn-ghost">Comment ça marche</Link>
+        <Link to={authPath(AUTH_MODE.LOGIN)} className="btn-ghost">Connexion</Link>
+        <Link to={authPath(AUTH_MODE.REGISTER)} className="btn-primary">Créer un compte</Link>
       </div>
 
       <div className="md:hidden flex shrink-0 items-center">
@@ -303,10 +309,10 @@ function Navbar() {
           style={{ background: "rgba(2, 6, 23, 0.92)", borderBottom: "1px solid rgba(34,211,238,0.08)" }}
         >
           <div className="flex flex-col gap-2">
-            <Link to={ROUTES.OFFRES} className="btn-secondary w-full justify-center">Offres</Link>
-            <Link to="/#comment-ca-marche" className="btn-secondary w-full justify-center">Comment ça marche</Link>
-            <Link to={ROUTES.AUTH} className="btn-secondary w-full justify-center">Connexion</Link>
-            <Link to={ROUTES.AUTH} className="btn-primary w-full justify-center">Créer un compte</Link>
+            <Link to={ROUTES.OFFRES} onClick={() => setOpen(false)} className="btn-secondary w-full justify-center">Offres</Link>
+            <Link to={homeWithHash(LANDING_ANCHOR.HOW_IT_WORKS)} onClick={() => setOpen(false)} className="btn-secondary w-full justify-center">Comment ça marche</Link>
+            <Link to={authPath(AUTH_MODE.LOGIN)} onClick={() => setOpen(false)} className="btn-secondary w-full justify-center">Connexion</Link>
+            <Link to={authPath(AUTH_MODE.REGISTER)} onClick={() => setOpen(false)} className="btn-primary w-full justify-center">Créer un compte</Link>
           </div>
         </div>
       ) : null}
@@ -432,9 +438,12 @@ function HeroSection() {
           style={{ color: "#f1f5f9", maxWidth: "140px" }}
         />
 
-        <button className="btn-primary ml-2 shrink-0 whitespace-nowrap">
+        <Link
+          to={ROUTES.OFFRES}
+          className="btn-primary ml-2 shrink-0 whitespace-nowrap inline-flex items-center justify-center"
+        >
           Rechercher
-        </button>
+        </Link>
       </motion.div>
 
       {/* Popular tags */}
@@ -446,8 +455,9 @@ function HeroSection() {
       >
         <span className="text-xs mr-1" style={{ color: "#475569" }}>Populaire :</span>
         {POPULAR_TAGS.map((tag) => (
-          <button
+          <Link
             key={tag}
+            to={ROUTES.OFFRES}
             className="px-3 py-1 rounded-full text-xs transition-all duration-200"
             style={{
               background: "rgba(255,255,255,0.04)",
@@ -466,7 +476,7 @@ function HeroSection() {
             }}
           >
             {tag}
-          </button>
+          </Link>
         ))}
       </motion.div>
 
@@ -580,7 +590,12 @@ function JobCard({ job, index }) {
             <span className="truncate">{job.mode}</span>
           </div>
         </div>
-        <button type="button" className="btn-secondary text-sm px-4 py-2.5 shrink-0 font-semibold">Postuler →</button>
+        <Link
+          to={authPath(AUTH_MODE.REGISTER)}
+          className="btn-secondary text-sm px-4 py-2.5 shrink-0 font-semibold inline-flex items-center justify-center"
+        >
+          Postuler →
+        </Link>
       </div>
     </motion.div>
   );
@@ -598,8 +613,8 @@ function JobsSection() {
           </h2>
         </AnimatedSection>
         <AnimatedSection className="shrink-0">
-          <button
-            type="button"
+          <Link
+            to={ROUTES.OFFRES}
             className="btn-ghost inline-flex items-center gap-2 text-sm font-semibold whitespace-nowrap"
             style={{ color: "#22D3EE" }}
           >
@@ -607,7 +622,7 @@ function JobsSection() {
             <svg className="w-4 h-4 shrink-0" width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
               <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
+          </Link>
         </AnimatedSection>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -623,8 +638,8 @@ function JobsSection() {
 function HowItWorksSection() {
   return (
     <section
-      id="comment-ca-marche"
-      className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24"
+      id={LANDING_ANCHOR.HOW_IT_WORKS}
+      className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24 scroll-mt-24"
       style={{
         background: "rgba(10,22,40,0.4)",
         borderTop: "1px solid rgba(34,211,238,0.07)",
@@ -775,15 +790,49 @@ function CTASection() {
             Créez votre profil gratuitement et accédez aux meilleures opportunités du marché dès aujourd'hui.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <button className="btn-primary px-7 py-3 text-sm">
+            <Link to={authPath(AUTH_MODE.REGISTER)} className="btn-primary px-7 py-3 text-sm inline-flex items-center justify-center">
               Créer mon profil gratuitement
-            </button>
-            <button className="btn-secondary px-7 py-3 text-sm">
+            </Link>
+            <Link to={ROUTES.OFFRES} className="btn-secondary px-7 py-3 text-sm inline-flex items-center justify-center">
               Parcourir les offres
-            </button>
+            </Link>
           </div>
         </motion.div>
       </AnimatedSection>
+    </section>
+  );
+}
+
+/** Blocs légaux (cibles des liens pied de page et page d’inscription) */
+function LegalSection() {
+  return (
+    <section
+      className="px-[5%] py-14"
+      style={{
+        borderTop: "1px solid rgba(34,211,238,0.07)",
+        background: "rgba(2,6,23,0.45)",
+      }}
+    >
+      <div className="max-w-3xl mx-auto space-y-10">
+        <div id={LANDING_ANCHOR.LEGAL} className="scroll-mt-24">
+          <h2 className="font-heading font-bold text-base mb-3" style={{ color: "#f1f5f9" }}>
+            Mentions légales
+          </h2>
+          <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
+            Candly est un service de démonstration. Les informations sur l&apos;éditeur, l&apos;hébergeur et la propriété
+            intellectuelle seront complétées avant toute mise en production.
+          </p>
+        </div>
+        <div id={LANDING_ANCHOR.PRIVACY} className="scroll-mt-24">
+          <h2 className="font-heading font-bold text-base mb-3" style={{ color: "#f1f5f9" }}>
+            Politique de confidentialité
+          </h2>
+          <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
+            Les données saisies sur Candly servent uniquement au fonctionnement du prototype. Pour toute question,
+            utilisez le lien Contact ci-dessous.
+          </p>
+        </div>
+      </div>
     </section>
   );
 }
@@ -796,15 +845,19 @@ function Footer() {
       style={{ borderTop: "1px solid rgba(34,211,238,0.07)" }}
     >
       <Logo />
-      <div className="flex gap-5">
-        {["Mentions légales", "Confidentialité", "Contact"].map((l) => (
-          <button key={l} className="btn-ghost text-xs p-0" style={{ color: "#475569" }}>
-            {l}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-5">
+        <Link to={homeWithHash(LANDING_ANCHOR.LEGAL)} className="btn-ghost text-xs p-0" style={{ color: "#475569" }}>
+          Mentions légales
+        </Link>
+        <Link to={homeWithHash(LANDING_ANCHOR.PRIVACY)} className="btn-ghost text-xs p-0" style={{ color: "#475569" }}>
+          Confidentialité
+        </Link>
+        <a href="mailto:contact@candly.io" className="btn-ghost text-xs p-0" style={{ color: "#475569" }}>
+          Contact
+        </a>
       </div>
       <p className="text-xs" style={{ color: "#475569" }}>
-        © 2025 Candly · Tous droits réservés
+        © 2026 Candly · Tous droits réservés
       </p>
     </footer>
   );
@@ -812,6 +865,16 @@ function Footer() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Landing() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const id = location.hash?.replace(/^#/, "");
+    if (!id) return;
+    requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [location.hash, location.pathname]);
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -820,6 +883,7 @@ export default function Landing() {
       <HowItWorksSection />
       <FeaturesSection />
       <CTASection />
+      <LegalSection />
       <Footer />
     </div>
   );
