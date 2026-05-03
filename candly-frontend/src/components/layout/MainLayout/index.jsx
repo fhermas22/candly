@@ -3,14 +3,26 @@
  * Candly – Primary layout shell: Navbar (top) + Sidebar (left) + Page content.
  * Wraps all authenticated pages. Public pages (Landing, Auth) bypass this layout.
  *
- * Usage:
- *   <MainLayout userRole="candidate">
- *     <YourPage />
- *   </MainLayout>
+ * Usage (React Router) :
+ *   <Route element={<MainLayout userRole="candidate" />}>
+ *     <Route path="dashboard" element={<Dashboard />} />
+ *   </Route>
+ *
+ * Mode hors routeur : passer `children` (ex. storybook) — sinon le contenu vient de `<Outlet />`.
  */
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  useLocation,
+  useNavigate,
+  Outlet,
+  MemoryRouter,
+  Routes,
+  Route,
+} from "react-router";
+
+import Dashboard from "../../../pages/Dashboard";
 
 // ─── Mock auth context (replace with real context when API is ready) ──────────
 const MOCK_USER = {
@@ -476,23 +488,20 @@ function Sidebar({ user, activeRoute, onNavigate }) {
 
 /**
  * @param {Object}  props
- * @param {React.ReactNode} props.children    - Page content
+ * @param {React.ReactNode} [props.children]  - Si défini, remplace `<Outlet />` (hors routeur)
  * @param {string}  [props.userRole]          - "candidate" | "admin"
- * @param {string}  [props.activeRoute]       - Current route path for nav highlighting
- * @param {string}  [props.breadcrumbLabel]   - Fil d'Ariane (desktop navbar)
- * @param {(href: string) => void} [props.onNavigate] - Si fourni, la route affichée suit `activeRoute` (mode contrôlé)
+ * @param {string}  [props.breadcrumbLabel]   - Surcharge du fil d’Ariane (desktop)
  */
 export default function MainLayout({
   children,
   userRole = "candidate",
-  activeRoute = "/dashboard",
   breadcrumbLabel,
-  onNavigate: onNavigateProp,
 }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [fallbackRoute, setFallbackRoute] = useState(activeRoute);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const currentRoute = onNavigateProp ? activeRoute : fallbackRoute;
+  const currentRoute = location.pathname;
 
   const user = { ...MOCK_USER, role: userRole };
 
@@ -504,12 +513,10 @@ export default function MainLayout({
 
   const handleNavigate = (href) => {
     setMobileSidebarOpen(false);
-    if (onNavigateProp) onNavigateProp(href);
-    else {
-      setFallbackRoute(href);
-      console.log(`[Candly] Navigating to: ${href}`);
-    }
+    navigate(href);
   };
+
+  const content = children ?? <Outlet />;
 
   return (
     <div className="min-h-screen" style={{ background: "#020617" }}>
@@ -574,67 +581,24 @@ export default function MainLayout({
           transition={{ duration: 0.35, ease: "easeOut" }}
           className="w-full min-h-[calc(100vh-4rem)]"
         >
-          {children}
+          {content}
         </motion.div>
       </main>
     </div>
   );
 }
 
-// ─── Preview (optional — retirer ou brancher sur une route de démo) ───────────
+// ─── Preview (hors routeur global) ───────────────────────────────────────────
 
-function DemoPage() {
-  return (
-    <div className="p-6 md:p-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <h1 className="font-heading text-2xl font-bold mb-2" style={{ color: "#f1f5f9" }}>
-          Tableau de bord
-        </h1>
-        <p className="text-sm mb-8" style={{ color: "#94a3b8" }}>
-          Bienvenue sur votre espace Candly
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[
-            { label: "Candidatures envoyées", value: "12", color: "#22D3EE" },
-            { label: "En cours d'examen", value: "4", color: "#F59E0B" },
-            { label: "Acceptées", value: "2", color: "#10B981" },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              className="glass-card p-5"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 + 0.2, duration: 0.4 }}
-            >
-              <p className="text-sm mb-3" style={{ color: "#94a3b8" }}>{stat.label}</p>
-              <p className="font-heading text-4xl font-bold" style={{ color: stat.color }}>
-                {stat.value}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-8 glass-card p-6">
-          <p className="text-sm" style={{ color: "#94a3b8" }}>
-            Layout Candly opérationnel — prêt pour le routage et l’API.
-          </p>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-/** Aperçu local : import { LayoutPreview } from '@/components/layout/MainLayout' */
+/** Aperçu : import { LayoutPreview } from '@/components/layout/MainLayout' */
 export function LayoutPreview() {
-  const [route, setRoute] = useState("/dashboard");
   return (
-    <MainLayout userRole="candidate" activeRoute={route} onNavigate={setRoute}>
-      <DemoPage />
-    </MainLayout>
+    <MemoryRouter initialEntries={["/dashboard"]}>
+      <Routes>
+        <Route element={<MainLayout userRole="candidate" />}>
+          <Route path="dashboard" element={<Dashboard />} />
+        </Route>
+      </Routes>
+    </MemoryRouter>
   );
 }
