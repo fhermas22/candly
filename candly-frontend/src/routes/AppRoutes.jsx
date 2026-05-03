@@ -3,8 +3,10 @@ import { Routes, Route } from "react-router";
 import MainLayout from "../components/layout/MainLayout";
 import Landing from "../pages/Landing";
 import Auth from "../pages/Auth";
-import Dashboard from "../pages/Dashboard";
+import CandidateDashboard from "../pages/CandidateDashboard";
 import PlaceholderPage from "../pages/PlaceholderPage";
+import AdminPanel from "../pages/AdminPanel";
+import ProfileSettings from "../pages/ProfileSettings";
 import NotFound from "../pages/NotFound";
 
 import { ROUTES } from "./paths";
@@ -20,7 +22,7 @@ export default function AppRoutes() {
       <Route path={ROUTES.AUTH} element={<Auth />} />
 
       <Route element={<MainLayout userRole="candidate" />}>
-        <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+        <Route path={ROUTES.DASHBOARD} element={<CandidateDashboard />} />
         <Route
           path={ROUTES.OFFRES}
           element={<PlaceholderPage title="Job Search" />}
@@ -31,14 +33,14 @@ export default function AppRoutes() {
         />
         <Route
           path={ROUTES.PROFIL}
-          element={<PlaceholderPage title="Mon profil" />}
+          element={<ProfileSettings />}
         />
       </Route>
 
       <Route path={ROUTES.ADMIN} element={<MainLayout userRole="admin" />}>
         <Route
           index
-          element={<PlaceholderPage title="Supervision" description="Vue d’ensemble administration — à connecter au backend." />}
+          element={<AdminPanel />}
         />
         <Route
           path="offres"
