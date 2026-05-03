@@ -279,7 +279,7 @@ function BrandingPanel() {
         }}
       />
 
-      <Link to={ROUTES.HOME} className="relative z-[1] mb-14 inline-block">
+      <Link to={ROUTES.HOME} className="relative z-1 mb-14 inline-block">
         <CandlyLogo />
       </Link>
 
@@ -287,7 +287,7 @@ function BrandingPanel() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="font-heading font-black leading-tight tracking-tight mb-5 relative z-[1]"
+        className="font-heading font-black leading-tight tracking-tight mb-5 relative z-1"
         style={{ fontSize: "clamp(2rem,3.5vw,3rem)", color: "#f1f5f9" }}
       >
         Votre talent<br />mérite d&apos;être{" "}
@@ -307,7 +307,7 @@ function BrandingPanel() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
-        className="text-sm leading-relaxed mb-12 max-w-sm relative z-[1]"
+        className="text-sm leading-relaxed mb-12 max-w-sm relative z-1"
         style={{ color: "#94a3b8" }}
       >
         Rejoignez des milliers de candidats qui ont trouvé leur prochaine opportunité via Candly. Sécurisé, rapide, premium.
@@ -317,7 +317,7 @@ function BrandingPanel() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="glass-card p-5 max-w-sm relative z-[1]"
+        className="glass-card p-5 max-w-sm relative z-1"
       >
         <p className="text-sm leading-relaxed mb-4 italic" style={{ color: "#e2e8f0" }}>
           &ldquo;En moins de deux semaines sur Candly, j&apos;ai décroché un entretien dans une scale-up parisienne. L&apos;interface est vraiment intuitive.&rdquo;
@@ -365,7 +365,7 @@ export default function Auth() {
       <BrandingPanel />
 
       <div
-        className="w-full lg:w-[480px] flex flex-col justify-center px-8 sm:px-14 py-12"
+        className="w-full lg:w-120 flex flex-col justify-center px-8 sm:px-14 py-12"
         style={{
           background: "rgba(10,22,40,0.7)",
           backdropFilter: "blur(20px)",

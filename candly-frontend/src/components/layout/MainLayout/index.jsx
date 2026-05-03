@@ -377,7 +377,7 @@ function Navbar({ user, onMenuToggle, isSidebarOpen, breadcrumbLabel = "Tableau 
 
         <div className="flex items-center gap-2 ml-1">
           <UserAvatar user={user} size="sm" />
-          <div className="hidden sm:block max-w-[120px]">
+          <div className="hidden sm:block max-w-30">
             <p className="text-xs font-medium leading-tight truncate" style={{ color: "#f1f5f9" }}>
               {user.name.split(" ")[0]}
             </p>
