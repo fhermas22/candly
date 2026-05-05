@@ -29,7 +29,7 @@ class MediaService
     {
         $filename = $this->buildFilename($userId, $cv);
 
-        return $cv->storeAs('profiles/cvs', $filename, 'private');
+        return $cv->storeAs('profiles/cvs', $filename, 'local');
     }
 
     /**
@@ -65,7 +65,7 @@ class MediaService
                     }
 
                     if ($newCvPath !== null && $oldCv) {
-                        Storage::disk('private')->delete($oldCv);
+                        Storage::disk('local')->delete($oldCv);
                     }
                 });
 
@@ -78,7 +78,7 @@ class MediaService
             }
 
             if ($newCvPath !== null) {
-                Storage::disk('private')->delete($newCvPath);
+                Storage::disk('local')->delete($newCvPath);
             }
 
             throw $e;
