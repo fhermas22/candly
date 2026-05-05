@@ -47,6 +47,14 @@ class Application extends Model
     }
 
     /**
+     * Alias for job() to keep API/repository naming explicit.
+     */
+    public function jobAdvertisement(): BelongsTo
+    {
+        return $this->job();
+    }
+
+    /**
      * Admin who moderated the application decision.
      */
     public function moderatedBy(): BelongsTo
