@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use App\Exceptions\Handler as AppExceptionHandler;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
@@ -45,4 +47,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 'errors' => $e->errors(),
             ], 422);
         });
-    })->create();
+    })
+    ->withBindings([
+        ExceptionHandler::class => AppExceptionHandler::class,
+    ])
+    ->create();
