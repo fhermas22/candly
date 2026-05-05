@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -31,6 +33,15 @@ return [
     'disks' => [
 
         'local' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'serve' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
+        // Alias used to make intent explicit (non-public, served via signed temporary URLs).
+        'private' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
             'serve' => true,
