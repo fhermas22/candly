@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\ForceJsonResponse;
+use App\Http\Middleware\SecurityHeaders;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Ensure all requests negotiate JSON responses, including error pages.
         $middleware->append(ForceJsonResponse::class);
+        $middleware->append(SecurityHeaders::class);
 
         // Register route middleware aliases (Laravel 12 syntax).
         $middleware->alias([
