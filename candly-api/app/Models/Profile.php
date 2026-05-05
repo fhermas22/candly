@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class Profile extends Model
 {
@@ -45,9 +46,16 @@ class Profile extends Model
      */
     public function getCvUrlAttribute(): ?string
     {
-        return $this->cv_path
-            ? Storage::temporaryUrl($this->cv_path, now()->addMinutes(15))
-            : null;
+        if (! $this->cv_path) {
+            return null;
+        }
+
+        // CVs are private: we expose them via a short-lived signed URL to prevent direct access and sharing.
+        return URL::temporarySignedRoute(
+            name: 'profiles.cv',
+            expiration: now()->addMinutes(15),
+            parameters: ['profile' => $this->id],
+        );
     }
 }
 
