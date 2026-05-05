@@ -21,14 +21,12 @@ class ApplicationResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
-            'user_id' => $this->resource->user_id,
-            'job_id' => $this->resource->job_id,
+            'job_title' => $this->resource->jobAdvertisement?->title,
             'status' => $this->resource->status,
-            'moderated_by' => $this->resource->moderated_by,
             'applied_at' => $this->resource->applied_at?->format('Y-m-d H:i'),
-            'deleted_at' => $this->resource->deleted_at?->format('Y-m-d H:i'),
-            'created_at' => $this->resource->created_at?->format('Y-m-d H:i'),
-            'updated_at' => $this->resource->updated_at?->format('Y-m-d H:i'),
+            'moderator_name' => $this->resource->moderatedBy?->profile
+                ? trim($this->resource->moderatedBy->profile->first_name.' '.$this->resource->moderatedBy->profile->last_name)
+                : null,
         ];
     }
 }
