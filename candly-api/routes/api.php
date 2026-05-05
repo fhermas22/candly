@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ApplicationController;
+use App\Http\Controllers\Api\ProfileMediaController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -18,7 +19,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('candidate/applications/{applicationId}', [ApplicationController::class, 'withdraw']);
 
     // Admin endpoints.
-    Route::get('admin/applications/pending', [ApplicationController::class, 'pendingForAdmin']);
-    Route::patch('admin/applications/{applicationId}/moderate', [ApplicationController::class, 'moderate']);
+    Route::middleware('role:admin')->group(function (): void {
+        Route::get('admin/applications/pending', [ApplicationController::class, 'pendingForAdmin']);
+        Route::patch('admin/applications/{applicationId}/moderate', [ApplicationController::class, 'moderate']);
+    });
 });
+
+// Signed media endpoints (no direct storage exposure).
+Route::get('profiles/{profile}/cv', [ProfileMediaController::class, 'cv'])->name('profiles.cv');
 
