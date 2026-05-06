@@ -1,0 +1,547 @@
+openapi: 3.0.3
+info:
+  title: Candly API
+  version: 1.0.0
+  description: >
+    Candly API documentation (Laravel + Sanctum).
+
+    Note: The following endpoints were mentioned but are NOT implemented in the current codebase:
+    - PUT /api/profile
+    - POST /api/profile/photo
+    - POST /api/profile/cv
+    - GET /api/jobs
+    - POST /api/applications
+    - DELETE /api/applications/{id}
+    - GET /api/admin/applications
+
+    Implemented equivalents:
+    - POST /api/profile/media (multipart: photo and/or cv)
+    - Candidate applications live under /api/candidate/applications
+    - Admin pending applications live under /api/admin/applications/pending
+servers:
+  - url: http://localhost:8000
+    description: Local development
+
+tags:
+  - name: Auth
+  - name: Profile
+  - name: Applications
+  - name: Admin
+  - name: Jobs
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    ValidationErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required: [message, errors]
+
+    AuthUser:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, candidate]
+      required: [id, email, role]
+
+    AuthResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        user:
+          $ref: '#/components/schemas/AuthUser'
+        plainTextToken:
+          type: string
+          description: >
+            Bearer token returned once at creation time.
+            Sanctum stores only a hash server-side; clients must persist this value securely.
+      required: [user, plainTextToken]
+
+    Profile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        first_name:
+          type: string
+        last_name:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        photo_path:
+          type: string
+          nullable: true
+        photo_url:
+          type: string
+          nullable: true
+          description: Public URL for profile photo (safe to expose).
+        cv_path:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+        updated_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+      required: [id, first_name, last_name, bio, photo_path, photo_url, cv_path, created_at, updated_at]
+
+    UserResource:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, candidate]
+        status:
+          type: boolean
+        profile:
+          allOf:
+            - $ref: '#/components/schemas/Profile'
+          nullable: true
+        created_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+        updated_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+      required: [id, email, role, status, profile, created_at, updated_at]
+
+    ApplicationResource:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        job_title:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        applied_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+        moderator_name:
+          type: string
+          nullable: true
+      required: [id, job_title, status, applied_at, moderator_name]
+
+    PaginatedApplicationResourceCollection:
+      type: object
+      description: Standard Laravel paginator shape when returning a resource collection.
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationResource'
+        links:
+          type: object
+          additionalProperties: true
+        meta:
+          type: object
+          additionalProperties: true
+      required: [data, links, meta]
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a candidate and issue a token
+      description: >
+        Creates a new candidate user and returns a Sanctum bearer token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+                password:
+                  type: string
+                  minLength: 8
+              required: [email, password]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and issue a token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          description: Validation error (including incorrect credentials)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/profile/media:
+    post:
+      tags: [Profile]
+      summary: Upload or update profile media (photo and/or CV)
+      description: >
+        Upload a profile photo (public) and/or CV (private).
+        CVs are not exposed via direct URLs; access is provided via short-lived signed URLs.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: >
+                    Validation: image, mimes jpeg/png/jpg, max 2048KB.
+                cv:
+                  type: string
+                  format: binary
+                  description: >
+                    Validation: PDF only, max 5120KB.
+      responses:
+        '200':
+          description: OK (returns updated authenticated user resource)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResource'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/profiles/{profile}/cv:
+    get:
+      tags: [Profile]
+      summary: Download CV via signed URL (15 minutes)
+      description: >
+        CVs are private documents. This endpoint requires a valid signature and expires.
+      parameters:
+        - name: profile
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: PDF download
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Invalid/expired signature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Profile or CV not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/candidate/applications:
+    get:
+      tags: [Applications]
+      summary: List active applications for the authenticated candidate
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApplicationResource'
+                required: [data]
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (must be candidate)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Applications]
+      summary: Apply to a job (candidate)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                job_id:
+                  type: integer
+                  format: int64
+              required: [job_id]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResource'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (must be candidate)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error (duplicate application / job closed / invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/candidate/applications/{applicationId}:
+    delete:
+      tags: [Applications]
+      summary: Withdraw an application (candidate; owner; pending only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (not owner or already moderated / not candidate)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/applications/pending:
+    get:
+      tags: [Admin]
+      summary: List pending applications (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK (paginated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedApplicationResourceCollection'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin role required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/applications/{applicationId}/moderate:
+    patch:
+      tags: [Admin]
+      summary: Moderate an application (accept/reject)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                status:
+                  type: string
+                  description: Allowed values: accepted, rejected.
+                  enum: [accepted, rejected]
+              required: [status]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResource'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden (admin role required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error (invalid status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
