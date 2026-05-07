@@ -21,8 +21,20 @@ class ProfileMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'cv' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
+            'photo' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg',
+                'mimetypes:image/jpeg,image/png',
+                'max:2048',
+            ],
+            'cv' => [
+                'nullable',
+                'file',
+                'mimes:pdf',
+                'mimetypes:application/pdf',
+                'max:5120',
+            ],
         ];
     }
 }
