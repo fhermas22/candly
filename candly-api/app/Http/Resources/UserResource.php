@@ -35,7 +35,7 @@ class UserResource extends JsonResource
         if ($profile?->cv_path) {
             $cvUrl = URL::temporarySignedRoute(
                 'profiles.cv',
-                now()->addMinutes(10),
+                now()->addMinutes(15),
                 ['profile' => $profile->id],
             );
         }
