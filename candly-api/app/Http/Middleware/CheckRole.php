@@ -20,7 +20,7 @@ class CheckRole
         $user = $request->user();
 
         if (! $user) {
-            return response()->json(['message' => 'Unauthorized.'], 403);
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
         $actualRole = (string) ($user->role ?? '');
