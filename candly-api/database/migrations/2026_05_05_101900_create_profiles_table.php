@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('cv_path')->nullable();
 
             $table->timestamps();
+
+            // Business invariant: 1–1 profile per user.
+            $table->unique('user_id');
         });
     }
 

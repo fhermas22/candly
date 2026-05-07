@@ -7,6 +7,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 /**
  * @property-read \App\Models\User $resource
@@ -30,6 +31,15 @@ class UserResource extends JsonResource
                 : rtrim((string) config('app.url'), '/').Storage::url($path);
         }
 
+        $cvUrl = null;
+        if ($profile?->cv_path) {
+            $cvUrl = URL::temporarySignedRoute(
+                'profiles.cv',
+                now()->addMinutes(15),
+                ['profile' => $profile->id],
+            );
+        }
+
         return [
             'id' => $this->resource->id,
             'email' => $this->resource->email,
@@ -43,6 +53,7 @@ class UserResource extends JsonResource
                 'photo_path' => $profile->photo_path,
                 'photo_url' => $photoUrl,
                 'cv_path' => $profile->cv_path,
+                'cv_url' => $cvUrl,
                 'created_at' => $profile->created_at?->format('Y-m-d H:i'),
                 'updated_at' => $profile->updated_at?->format('Y-m-d H:i'),
             ] : null,

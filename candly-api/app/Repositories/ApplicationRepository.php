@@ -20,6 +20,9 @@ class ApplicationRepository
         return Application::query()
             ->where('user_id', $candidateId)
             ->whereNull('deleted_at')
+            ->whereHas('user', function ($q): void {
+                $q->whereNull('deleted_at');
+            })
             ->with([
                 'jobAdvertisement',
                 'moderatedBy',
@@ -36,6 +39,9 @@ class ApplicationRepository
         return Application::query()
             ->where('status', 'pending')
             ->whereNull('deleted_at')
+            ->whereHas('user', function ($q): void {
+                $q->whereNull('deleted_at');
+            })
             ->with([
                 'user.profile',
                 'jobAdvertisement',

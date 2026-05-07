@@ -20,7 +20,6 @@ class Application extends Model
         'user_id',
         'job_id',
         'status',
-        'moderated_by',
         'applied_at',
     ];
 

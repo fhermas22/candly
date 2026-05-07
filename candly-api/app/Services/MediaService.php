@@ -17,7 +17,7 @@ class MediaService
      */
     public function storeProfilePhoto(int $userId, UploadedFile $photo): string
     {
-        $filename = $this->buildFilename($userId, $photo);
+        $filename = $this->buildFilename($userId, $photo, ['jpg', 'jpeg', 'png']);
 
         return $photo->storeAs('profiles/photos', $filename, 'public');
     }
@@ -27,7 +27,7 @@ class MediaService
      */
     public function storeProfileCv(int $userId, UploadedFile $cv): string
     {
-        $filename = $this->buildFilename($userId, $cv);
+        $filename = $this->buildFilename($userId, $cv, ['pdf']);
 
         return $cv->storeAs('profiles/cvs', $filename, 'local');
     }
@@ -90,11 +90,14 @@ class MediaService
     /**
      * Filename format: {userId}_{timestamp}_{uuid}.{ext}
      */
-    private function buildFilename(int $userId, UploadedFile $file): string
+    private function buildFilename(int $userId, UploadedFile $file, array $allowedExtensions): string
     {
         $timestamp = now()->format('YmdHis');
         $uuid = (string) Str::uuid();
-        $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'bin');
+        $ext = strtolower((string) ($file->extension() ?: 'bin'));
+        if (! in_array($ext, $allowedExtensions, true)) {
+            $ext = $allowedExtensions[0] ?? 'bin';
+        }
 
         return "{$userId}_{$timestamp}_{$uuid}.{$ext}";
     }
