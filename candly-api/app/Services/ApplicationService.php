@@ -80,6 +80,11 @@ class ApplicationService
             ->whereNull('deleted_at')
             ->firstOrFail();
 
+        // Guard — decisions are final; only pending can be moderated.
+        if ($application->status !== 'pending') {
+            throw new ApplicationAlreadyModeratedEx();
+        }
+
         $application->status = $newStatus;
         $application->moderated_by = $adminId;
         $application->save();
