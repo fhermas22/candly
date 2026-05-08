@@ -1,0 +1,473 @@
+openapi: 3.0.3
+info:
+  title: Candly API
+  version: 1.0.0
+  description: >
+    Candly backend API documentation for the Laravel + Sanctum implementation.
+    All documented paths are implemented in the current codebase.
+servers:
+  - url: http://localhost:8000
+    description: Local development
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: Authentication endpoints for candidate users.
+  - name: Candidate Applications
+    description: Application management available to candidates.
+  - name: Admin Applications
+    description: Admin moderation endpoints for pending applications.
+  - name: Profiles
+    description: Profile media upload and signed CV access.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+      required: [message]
+    ValidationErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required: [message, errors]
+    AuthUser:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, candidate]
+      required: [id, email, role]
+    AuthResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        user:
+          $ref: '#/components/schemas/AuthUser'
+        plainTextToken:
+          type: string
+          description: >
+            Bearer token returned once at creation time. Sanctum stores only a hash server-side;
+            clients must persist the plain token value securely.
+      required: [user, plainTextToken]
+    Profile:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        first_name:
+          type: string
+        last_name:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        photo_path:
+          type: string
+          nullable: true
+        photo_url:
+          type: string
+          nullable: true
+          description: Public photo URL generated from storage.
+        cv_path:
+          type: string
+          nullable: true
+        cv_url:
+          type: string
+          nullable: true
+          description: Temporary signed URL for secure CV download.
+        created_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+        updated_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+      required: [id, first_name, last_name, bio, photo_path, photo_url, cv_path, cv_url, created_at, updated_at]
+    UserResource:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, candidate]
+        status:
+          type: boolean
+        profile:
+          $ref: '#/components/schemas/Profile'
+          nullable: true
+        created_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+        updated_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+      required: [id, email, role, status, profile, created_at, updated_at]
+    ApplicationResource:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        job_title:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        applied_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+        moderator_name:
+          type: string
+          nullable: true
+      required: [id, job_title, status, applied_at, moderator_name]
+    ApplicationCollection:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationResource'
+      required: [data]
+    PaginatedApplicationResourceCollection:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationResource'
+        links:
+          type: object
+          additionalProperties: true
+        meta:
+          type: object
+          additionalProperties: true
+      required: [data, links, meta]
+    CandidateApplicationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        job_id:
+          type: integer
+      required: [job_id]
+    ModerateApplicationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected]
+      required: [status]
+    ProfileMediaUploadRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        photo:
+          type: string
+          format: binary
+        cv:
+          type: string
+          format: binary
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a candidate and issue a Sanctum token.
+      description: Creates a new candidate account and returns a bearer token.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+                password:
+                  type: string
+                  minLength: 8
+              required: [email, password]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and issue a new Sanctum token.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /api/candidate/applications:
+    get:
+      tags: [Candidate Applications]
+      summary: List active candidate applications.
+      responses:
+        '200':
+          description: Active applications for the authenticated candidate.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCollection'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags: [Candidate Applications]
+      summary: Apply to a job advertisement.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateApplicationRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResource'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /api/candidate/applications/{applicationId}:
+    delete:
+      tags: [Candidate Applications]
+      summary: Withdraw a pending application.
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/admin/applications/pending:
+    get:
+      tags: [Admin Applications]
+      summary: List pending applications for admin review.
+      responses:
+        '200':
+          description: Paginated pending applications.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedApplicationResourceCollection'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/admin/applications/{applicationId}/moderate:
+    patch:
+      tags: [Admin Applications]
+      summary: Moderate a pending application.
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerateApplicationRequest'
+      responses:
+        '200':
+          description: Moderated application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResource'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /api/profile/media:
+    post:
+      tags: [Profiles]
+      summary: Upload or update profile media.
+      description: >
+        Uploads a profile photo and/or CV. Photo files are stored publicly, CV files are kept private and served through a signed URL.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProfileMediaUploadRequest'
+      responses:
+        '200':
+          description: Updated user profile with media URLs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResource'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+  /api/profiles/{profile}/cv:
+    get:
+      tags: [Profiles]
+      summary: Download a signed CV file.
+      security: []
+      parameters:
+        - name: profile
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: PDF file stream for the CV.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Forbidden (invalid or missing signature)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
