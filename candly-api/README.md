@@ -251,15 +251,31 @@ Feature tests live under:
 
 ## OpenAPI documentation
 
-The OpenAPI spec is available at:
+The OpenAPI spec source is maintained in:
 
 - `docs/openapi.yaml`
 
-Preview locally (Node):
+A copy is published to:
+
+- `public/docs/openapi.yaml`
+
+Swagger UI is available at:
+
+- `/api/docs`
+
+To preview locally with Redocly:
 
 ```bash
 npx @redocly/cli preview-docs docs/openapi.yaml
 ```
+
+To keep the public Swagger copy in sync after changes:
+
+```bash
+composer run docs:sync
+```
+
+The automated setup flow already syncs the docs copy as part of `composer run setup`.
 
 ---
 
