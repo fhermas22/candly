@@ -30,6 +30,12 @@ php artisan key:generate
 php artisan migrate --force
 ```
 
+Or use the automated project setup script:
+
+```bash
+composer run setup
+```
+
 ### Run locally
 
 ```bash
@@ -71,7 +77,29 @@ Authorization: Bearer <token>
 ```
 
 ---
+## Admin user management
 
+Create an admin user without exposing the password on the command line:
+
+```bash
+php artisan candly:create-admin-user admin@example.com --status=1
+```
+
+This command will prompt for the admin password in hidden mode when run interactively.
+
+For CI or non-interactive automation, provide the secret through environment or stdin:
+
+```bash
+CANDLY_ADMIN_PASSWORD="$ADMIN_PASSWORD" php artisan candly:create-admin-user admin@example.com --status=1
+```
+
+```bash
+printf '%s' "$ADMIN_PASSWORD" | php artisan candly:create-admin-user admin@example.com --password-stdin --status=1
+```
+
+Do not pass the password as a positional argument; that can expose it in shell history and process listings.
+
+---
 ## Roles & authorization
 
 User roles are stored in `users.role`:
