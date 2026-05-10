@@ -85,13 +85,15 @@ class CreateAdminUser extends Command
         }
 
         if ($password === null) {
-            $password = getenv('CANDLY_ADMIN_PASSWORD') ?: null;
+            if ($passwordStdin) {
+                $password = $this->readPasswordFromStdin();
+            } else {
+                $password = getenv('CANDLY_ADMIN_PASSWORD') ?: null;
+            }
         }
 
         if ($password === null) {
-            if ($passwordStdin) {
-                $password = $this->readPasswordFromStdin();
-            } elseif ($this->input->isInteractive()) {
+            if ($this->input->isInteractive()) {
                 $password = $this->secret('Admin password');
             }
         }
