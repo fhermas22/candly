@@ -126,7 +126,8 @@ components:
         status:
           type: boolean
         profile:
-          $ref: '#/components/schemas/Profile'
+          allOf:
+            - $ref: '#/components/schemas/Profile'
           nullable: true
         created_at:
           type: string
@@ -137,6 +138,37 @@ components:
           nullable: true
           example: '2026-05-05 12:00'
       required: [id, email, role, status, profile, created_at, updated_at]
+    JobAdvertisementResource:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int64
+        admin_id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        salary_range:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [open, closed]
+        created_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+        updated_at:
+          type: string
+          nullable: true
+          example: '2026-05-05 12:00'
+      required: [id, admin_id, title, location, description, salary_range, status, created_at, updated_at]
     ApplicationResource:
       type: object
       additionalProperties: false
@@ -197,6 +229,34 @@ components:
           type: string
           enum: [accepted, rejected]
       required: [status]
+    CreateJobRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        salary_range:
+          type: string
+          nullable: true
+      required: [title, location, description]
+    UpdateJobRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        location:
+          type: string
+        description:
+          type: string
+        salary_range:
+          type: string
+          nullable: true
+      required: []
     ProfileMediaUploadRequest:
       type: object
       additionalProperties: false
@@ -409,6 +469,194 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationErrorResponse'
+  /api/jobs:
+    get:
+      tags: [Jobs]
+      summary: List open job advertisements.
+      responses:
+        '200':
+          description: List of open jobs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/JobAdvertisementResource'
+                required: [data]
+  /api/jobs/{jobId}:
+    get:
+      tags: [Jobs]
+      summary: Get a specific job advertisement.
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Job details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAdvertisementResource'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/admin/jobs:
+    get:
+      tags: [Admin Jobs]
+      summary: List all job advertisements for admin.
+      responses:
+        '200':
+          description: Paginated list of all jobs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/JobAdvertisementResource'
+                  links:
+                    type: object
+                  meta:
+                    type: object
+                required: [data, links, meta]
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags: [Admin Jobs]
+      summary: Create a new job advertisement.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobRequest'
+      responses:
+        '201':
+          description: Created job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAdvertisementResource'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+  /api/admin/jobs/{jobId}:
+    put:
+      tags: [Admin Jobs]
+      summary: Update a job advertisement.
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateJobRequest'
+      responses:
+        '200':
+          description: Updated job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAdvertisementResource'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '422':
+          description: Validation error
+    delete:
+      tags: [Admin Jobs]
+      summary: Delete a job advertisement.
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+  /api/admin/jobs/{jobId}/close:
+    patch:
+      tags: [Admin Jobs]
+      summary: Close a job advertisement.
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Closed job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAdvertisementResource'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+  /api/admin/jobs/{jobId}/reopen:
+    patch:
+      tags: [Admin Jobs]
+      summary: Reopen a job advertisement.
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Reopened job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAdvertisementResource'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
   /api/profile/media:
     post:
       tags: [Profiles]
