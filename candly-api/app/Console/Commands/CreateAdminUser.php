@@ -13,18 +13,22 @@ class CreateAdminUser extends Command
     /*
      * The name and signature of the console command.
      */
-    protected $signature = 'candly:create-admin-user {email : Admin email} {password : Admin password} {--status=1 : 1=true, 0=false}';
+    protected $signature = 'candly:create-admin-user {email : Admin email} {--status=1 : 1=true, 0=false} {--password= : Admin password (use only for testing)} {--password-stdin : Read password from stdin}';
 
     /**
      * The console command description.
      */
-    protected $description = 'Create an admin user (role=admin) in the Candly API database.';
+    protected $description = 'Create an admin user (role=admin) in the Candly API database. Password is read from a hidden prompt, stdin, or CANDLY_ADMIN_PASSWORD.';
 
     public function handle(): int
     {
         $email = (string) $this->argument('email');
-        $password = (string) $this->argument('password');
+        $password = $this->resolvePassword();
         $statusInput = (string) $this->option('status');
+
+        if ($password === null) {
+            return self::FAILURE;
+        }
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->error('Invalid email address.');
@@ -68,6 +72,65 @@ class CreateAdminUser extends Command
 
         $this->info('Admin user created successfully.');
         return self::SUCCESS;
+    }
+
+    private function resolvePassword(): ?string
+    {
+        $password = $this->option('password');
+        $passwordStdin = (bool) $this->option('password-stdin');
+
+        if ($password !== null && $passwordStdin) {
+            $this->error('Cannot use --password and --password-stdin together.');
+            return null;
+        }
+
+        if ($password === null) {
+            if ($passwordStdin) {
+                $password = $this->readPasswordFromStdin();
+            } else {
+                $password = getenv('CANDLY_ADMIN_PASSWORD') ?: null;
+            }
+        }
+
+        if ($password === null) {
+            if ($this->input->isInteractive()) {
+                $password = $this->secret('Admin password');
+            }
+        }
+
+        $password = trim((string) $password);
+
+        if ($password === '') {
+            $this->error('Admin password is required.');
+            return null;
+        }
+
+        return $password;
+    }
+
+    private function readPasswordFromStdin(): string
+    {
+        $stdin = fopen('php://stdin', 'r');
+
+        if ($stdin === false) {
+            return '';
+        }
+
+        $password = '';
+
+        while (! feof($stdin)) {
+            $line = fgets($stdin);
+            if ($line === false) {
+                break;
+            }
+
+            $password .= $line;
+            break;
+        }
+
+        fclose($stdin);
+
+        return trim($password);
     }
 }
 
