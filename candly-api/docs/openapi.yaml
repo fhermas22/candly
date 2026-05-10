@@ -126,7 +126,8 @@ components:
         status:
           type: boolean
         profile:
-          $ref: '#/components/schemas/Profile'
+          allOf:
+            - $ref: '#/components/schemas/Profile'
           nullable: true
         created_at:
           type: string
