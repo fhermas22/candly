@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\Application;
+use App\Models\JobAdvertisement;
 use App\Models\User;
 use App\Policies\ApplicationPolicy;
+use App\Policies\JobAdvertisementPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -21,6 +23,7 @@ class AuthServiceProvider extends ServiceProvider
         // Register all policies explicitly for clarity and security.
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Application::class, ApplicationPolicy::class);
+        Gate::policy(JobAdvertisement::class, JobAdvertisementPolicy::class);
     }
 }
 

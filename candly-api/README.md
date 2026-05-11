@@ -156,6 +156,11 @@ Source of truth:
 - `POST /api/auth/register` (rate limited `throttle:10,1`)
 - `POST /api/auth/login` (rate limited `throttle:10,1`)
 
+### Jobs
+
+- `GET /api/jobs` (public: list open jobs)
+- `GET /api/jobs/{jobId}` (public: view open job)
+
 ### Candidate
 
 - `GET /api/candidate/applications`
@@ -166,11 +171,37 @@ Source of truth:
 
 - `GET /api/admin/applications/pending` (paginated)
 - `PATCH /api/admin/applications/{applicationId}/moderate` (body: `status=accepted|rejected`)
+- `GET /api/admin/jobs` (paginated)
+- `POST /api/admin/jobs` (body: job details)
+- `PUT /api/admin/jobs/{jobId}` (body: job updates)
+- `PATCH /api/admin/jobs/{jobId}/close`
+- `PATCH /api/admin/jobs/{jobId}/reopen`
+- `DELETE /api/admin/jobs/{jobId}`
 
 ### Profile media
 
 - `POST /api/profile/media` (multipart: `photo` and/or `cv`)
 - `GET /api/profiles/{profile}/cv` (signed URL only)
+
+---
+
+## Business rules (Jobs)
+
+The job advertisement logic follows a **Service–Repository** pattern:
+
+- **Repository** (`JobAdvertisementRepository`)
+  - Public: list open jobs
+  - Admin: list all jobs (pagination: 15)
+- **Service** (`JobAdvertisementService`)
+  - Create: only admins, sets `status` to `open`
+  - Update: only admins, partial updates allowed
+  - Close/Reopen: only admins, toggles `status`
+  - Delete: only admins, hard delete
+
+Authorization:
+
+- Public can view open jobs only.
+- All management operations require `admin` role.
 
 ---
 
@@ -245,6 +276,7 @@ php artisan test
 Feature tests live under:
 
 - `tests/Feature/ApplicationTest.php`
+- `tests/Feature/JobTest.php`
 - `tests/Feature/MediaTest.php`
 
 ---
