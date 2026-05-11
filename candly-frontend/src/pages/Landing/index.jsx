@@ -14,6 +14,7 @@ import {
   homeWithHash,
   LANDING_ANCHOR,
 } from "../../routes/paths";
+import api from "../../utils/api";
 
 // ─── Icons (SVG, pro, sans emojis) ────────────────────────────────────────────
 function Icon({ name, className = "w-6 h-6", title }) {
@@ -603,6 +604,53 @@ function JobCard({ job, index }) {
 
 /** Latest jobs section */
 function JobsSection() {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await api.get('/jobs');
+        // Transform API data to match component expectations
+        const transformedJobs = response.data.data.map(job => ({
+          id: job.id,
+          title: job.title,
+          company: 'Candly', // Since admin_id, we can enhance later
+          location: job.location,
+          mode: 'À définir', // Not in API yet
+          salary: job.salary_range || 'À négocier',
+          tags: [], // Not in API yet
+          badge: null,
+          logoColor: "#22D3EE",
+          logoBg: "rgba(34,211,238,0.12)",
+          initials: "C",
+        }));
+        setJobs(transformedJobs);
+      } catch (err) {
+        console.error('Failed to fetch jobs:', err);
+        setError('Impossible de charger les offres');
+        // Fallback to mock data
+        setJobs(MOCK_JOBS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="px-[5%] py-20">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto"></div>
+          <p className="mt-2 text-slate-400">Chargement des offres...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="px-[5%] py-20">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-11">
@@ -625,8 +673,13 @@ function JobsSection() {
           </Link>
         </AnimatedSection>
       </div>
+      {error && (
+        <div className="text-center mb-8">
+          <p className="text-red-400">{error}</p>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {MOCK_JOBS.map((job, i) => (
+        {jobs.map((job, i) => (
           <JobCard key={job.id} job={job} index={i} />
         ))}
       </div>
