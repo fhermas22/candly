@@ -4,7 +4,7 @@
  * Wraps authenticated pages.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useLocation,
@@ -15,16 +15,17 @@ import {
   Route,
   Link,
 } from "react-router";
+import { auth } from "../../../utils/auth.js";
 
 import CandidateDashboard from "../../../pages/CandidateDashboard";
 import { ROUTES } from "../../../routes/paths";
 
-// ─── Mock auth context (replace with real context when API is ready) ──────────
+// ─── Generic fallback (never display real-person names) ──────────
 const MOCK_USER = {
-  name: "Hermas Francisco",
-  email: "hermas@candly.io",
+  name: "Candidat",
+  email: "candidat@candly.io",
   role: "candidate", // "candidate" | "admin"
-  avatarInitials: "HF",
+  avatarInitials: "CD",
   avatarColor: "#22D3EE",
 };
 
@@ -32,8 +33,9 @@ const MOCK_USER = {
 const CANDIDATE_NAV = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Tableau de bord",
     href: ROUTES.DASHBOARD,
+
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -45,7 +47,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "jobs",
-    label: "Job Search",
+    label: "Recherche d’offres",
     href: ROUTES.OFFRES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -56,7 +58,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "applications",
-    label: "My Applications",
+    label: "Mes candidatures",
     href: ROUTES.CANDIDATURES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -68,7 +70,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "profile",
-    label: "My Profile",
+    label: "Mon profil",
     href: ROUTES.PROFIL,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -82,7 +84,7 @@ const CANDIDATE_NAV = [
 const ADMIN_NAV = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Tableau de bord",
     href: ROUTES.ADMIN,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -92,7 +94,7 @@ const ADMIN_NAV = [
   },
   {
     id: "jobs-admin",
-    label: "Job Management",
+    label: "Gestion des offres",
     href: ROUTES.ADMIN_OFFRES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -104,7 +106,7 @@ const ADMIN_NAV = [
   },
   {
     id: "users",
-    label: "Candidate Management",
+    label: "Gestion des candidats",
     href: ROUTES.ADMIN_CANDIDATS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -116,7 +118,7 @@ const ADMIN_NAV = [
   },
   {
     id: "applications-admin",
-    label: "Application Review",
+    label: "Revue des candidatures",
     href: ROUTES.ADMIN_CANDIDATURES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -267,8 +269,9 @@ function Navbar({
   const [notifOpen, setNotifOpen] = useState(false);
 
   const roleBadge = user.role === "admin"
-    ? { label: "Admin", color: "#10B981" }
+    ? { label: "Administrateur", color: "#10B981" }
     : { label: "Candidat", color: "#22D3EE" };
+
 
   return (
     <header
@@ -320,6 +323,7 @@ function Navbar({
       <div className="ml-auto flex items-center gap-2 shrink-0">
         <div className="relative">
           <button
+
             type="button"
             onClick={() => setNotifOpen(!notifOpen)}
             className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-white/5"
@@ -351,8 +355,8 @@ function Navbar({
                 </p>
                 <div className="space-y-2">
                   {[
-                    { msg: "Votre candidature a été examinée", time: "Il y a 2h", dot: "#22D3EE" },
-                    { msg: "Nouvelle offre correspondant à votre profil", time: "Il y a 5h", dot: "#10B981" },
+                    { msg: "Mise à jour de candidature", time: "Récemment", dot: "#22D3EE" },
+                    { msg: "Nouvelle opportunité", time: "Récemment", dot: "#10B981" },
                   ].map((n, i) => (
                     <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
                       <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: n.dot }} />
@@ -410,7 +414,7 @@ function Navbar({
 }
 
 /** Left Sidebar component */
-function Sidebar({ user, activeRoute, onNavClick }) {
+function Sidebar({ user, activeRoute, onNavClick, onSignOut }) {
   const navItems = user.role === "admin" ? ADMIN_NAV : CANDIDATE_NAV;
 
   return (
@@ -469,10 +473,11 @@ function Sidebar({ user, activeRoute, onNavClick }) {
           </div>
           <button
             type="button"
+            onClick={onSignOut}
             className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors shrink-0"
             style={{ color: "#64748b" }}
-          title="Sign Out"
-            aria-label="Sign Out"
+            title="Se déconnecter"
+            aria-label="Se déconnecter"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" width={16} height={16} aria-hidden>
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
@@ -504,8 +509,34 @@ export default function MainLayout({
   const navigate = useNavigate();
 
   const currentRoute = location.pathname;
+  const storedUser = auth.getUser();
+  const sessionRole = storedUser?.role ?? userRole;
+  const user = {
+    ...MOCK_USER,
+    role: sessionRole,
+    name: storedUser?.displayName ?? MOCK_USER.name,
+    email: storedUser?.email ?? MOCK_USER.email,
+    avatarInitials: storedUser?.avatarInitials ?? MOCK_USER.avatarInitials,
+    avatarColor: storedUser?.avatarColor ?? MOCK_USER.avatarColor,
+    photoUrl: storedUser?.profile?.photo_url ?? null,
+  };
 
-  const user = { ...MOCK_USER, role: userRole };
+  const handleSignOut = () => {
+    auth.logout();
+    navigate(ROUTES.AUTH, { replace: true });
+  };
+
+  useEffect(() => {
+    if (!auth.isAuthenticated()) {
+      navigate(ROUTES.AUTH, { replace: true });
+      return;
+    }
+
+    if (storedUser?.role && storedUser.role !== userRole) {
+      const fallback = storedUser.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD;
+      navigate(fallback, { replace: true });
+    }
+  }, [navigate, userRole, storedUser?.role]);
 
   const navItems = user.role === "admin" ? ADMIN_NAV : CANDIDATE_NAV;
   const resolvedBreadcrumb =
@@ -538,6 +569,7 @@ export default function MainLayout({
           user={user}
           activeRoute={currentRoute}
           onNavClick={closeMobileSidebar}
+          onSignOut={handleSignOut}
         />
       </div>
 
@@ -566,6 +598,7 @@ export default function MainLayout({
                 user={user}
                 activeRoute={currentRoute}
                 onNavClick={closeMobileSidebar}
+                onSignOut={handleSignOut}
               />
             </motion.div>
           </>
