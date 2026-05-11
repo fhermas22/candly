@@ -5,7 +5,7 @@
 
 import { useState, useId, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, useSearchParams } from "react-router";
+import { Link, useSearchParams, useNavigate } from "react-router";
 
 import {
   ROUTES,
@@ -13,6 +13,7 @@ import {
   homeWithHash,
   LANDING_ANCHOR,
 } from "../../routes/paths";
+import { auth } from "../../utils/auth";
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 const formVariants = {
@@ -119,13 +120,25 @@ function OrDivider() {
 
 // ─── Login Form ───────────────────────────────────────────────────────────────
 function LoginForm({ onSwitch }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: POST /api/auth/login { email, password }
-    console.log("[Candly] Login →", { email });
+    setLoading(true);
+    setError("");
+
+    try {
+      await auth.login({ email, password });
+      navigate(ROUTES.DASHBOARD);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -145,6 +158,12 @@ function LoginForm({ onSwitch }) {
       <p className="text-sm mb-7" style={{ color: "#64748b" }}>
         Connectez-vous pour accéder à votre tableau de bord
       </p>
+
+      {error && (
+        <div className="mb-4 p-3 rounded-lg text-sm" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <Field
@@ -174,8 +193,12 @@ function LoginForm({ onSwitch }) {
           </a>
         </div>
 
-        <button type="submit" className="btn-primary w-full justify-center py-3 text-sm mb-5">
-          Se connecter
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn-primary w-full justify-center py-3 text-sm mb-5 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Connexion..." : "Se connecter"}
         </button>
       </form>
 
@@ -199,16 +222,47 @@ function LoginForm({ onSwitch }) {
 
 // ─── Register Form ────────────────────────────────────────────────────────────
 function RegisterForm({ onSwitch }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", password: "", confirm: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const set = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: POST /api/auth/register
-    console.log("[Candly] Register →", { ...form, password: "***" });
+    setLoading(true);
+    setError("");
+
+    // Basic validation
+    if (form.password !== form.confirm) {
+      setError("Les mots de passe ne correspondent pas");
+      setLoading(false);
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await auth.register({
+        first_name: form.firstName,
+        last_name: form.lastName,
+        email: form.email,
+        password: form.password,
+        password_confirmation: form.confirm,
+      });
+      navigate(ROUTES.DASHBOARD);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -229,17 +283,27 @@ function RegisterForm({ onSwitch }) {
         Rejoignez Candly et trouvez votre prochaine opportunité
       </p>
 
+      {error && (
+        <div className="mb-4 p-3 rounded-lg text-sm" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>
+          {error}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Prénom" placeholder="Hermas" value={form.firstName} onChange={set("firstName")} autoComplete="given-name" />
-          <Field label="Nom" placeholder="Francisco" value={form.lastName} onChange={set("lastName")} autoComplete="family-name" />
+          <Field label="Prénom" placeholder="Votre prénom" value={form.firstName} onChange={set("firstName")} autoComplete="given-name" />
+          <Field label="Nom" placeholder="Votre nom" value={form.lastName} onChange={set("lastName")} autoComplete="family-name" />
         </div>
         <Field label="Adresse e-mail" type="email" placeholder="vous@exemple.com" value={form.email} onChange={set("email")} autoComplete="email" />
         <Field label="Mot de passe" type="password" placeholder="8 caractères minimum" value={form.password} onChange={set("password")} autoComplete="new-password" />
         <Field label="Confirmer le mot de passe" type="password" placeholder="••••••••" value={form.confirm} onChange={set("confirm")} autoComplete="new-password" />
 
-        <button type="submit" className="btn-primary w-full justify-center py-3 text-sm mt-2">
-          Créer mon compte
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn-primary w-full justify-center py-3 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Création..." : "Créer mon compte"}
         </button>
       </form>
 
@@ -333,7 +397,7 @@ function BrandingPanel() {
         className="glass-card p-5 max-w-sm relative z-1"
       >
         <p className="text-sm leading-relaxed mb-4 italic" style={{ color: "#e2e8f0" }}>
-          &ldquo;En moins de deux semaines sur Candly, j&apos;ai décroché un entretien dans une scale-up parisienne. L&apos;interface est vraiment intuitive.&rdquo;
+          &ldquo;En moins de deux semaines sur Candly, j&apos;ai décroché un entretien dans une scale-up béninoise. L&apos;interface est vraiment intuitive.&rdquo;
         </p>
         <div className="flex items-center gap-3">
           <div
@@ -347,8 +411,8 @@ function BrandingPanel() {
             AS
           </div>
           <div>
-            <p className="text-sm font-semibold" style={{ color: "#f1f5f9" }}>Amina Sorel</p>
-            <p className="text-xs" style={{ color: "#64748b" }}>Développeuse React · Paris</p>
+            <p className="text-sm font-semibold" style={{ color: "#f1f5f9" }}>Amina Soyin</p>
+            <p className="text-xs" style={{ color: "#64748b" }}>Développeuse React · Bénin</p>
           </div>
         </div>
       </motion.div>
