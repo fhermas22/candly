@@ -357,7 +357,7 @@ function HeroSection() {
           style={{ background: "#22D3EE", boxShadow: "0 0 8px rgba(34,211,238,0.9)" }}
         />
         <span className="text-xs font-medium" style={{ color: "#22D3EE" }}>
-          Plateforme de recrutement premium · Aura Tech
+          Votre plateforme de recrutement !
         </span>
       </motion.div>
 
