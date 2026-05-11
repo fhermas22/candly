@@ -4,6 +4,9 @@ import MainLayout from "../components/layout/MainLayout";
 import Landing from "../pages/Landing";
 import Auth from "../pages/Auth";
 import CandidateDashboard from "../pages/CandidateDashboard";
+import CandidateApplications from "../pages/CandidateApplications";
+import JobSearch from "../pages/JobSearch";
+import JobDetail from "../pages/JobDetail";
 import PlaceholderPage from "../pages/PlaceholderPage";
 import AdminPanel from "../pages/AdminPanel";
 import ProfileSettings from "../pages/ProfileSettings";
@@ -23,14 +26,9 @@ export default function AppRoutes() {
 
       <Route element={<MainLayout userRole="candidate" />}>
         <Route path={ROUTES.DASHBOARD} element={<CandidateDashboard />} />
-        <Route
-          path={ROUTES.OFFRES}
-          element={<PlaceholderPage title="Job Search" />}
-        />
-        <Route
-          path={ROUTES.CANDIDATURES}
-          element={<PlaceholderPage title="Mes candidatures" />}
-        />
+        <Route path={ROUTES.OFFRES} element={<JobSearch />} />
+        <Route path={`${ROUTES.OFFRES}/:jobId`} element={<JobDetail />} />
+        <Route path={ROUTES.CANDIDATURES} element={<CandidateApplications />} />
         <Route
           path={ROUTES.PROFIL}
           element={<ProfileSettings />}
