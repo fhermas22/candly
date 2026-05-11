@@ -8,22 +8,24 @@
 
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { auth } from "../../utils/auth";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CV_MAX_SIZE_MB = 5;
 const ACCEPTED_IMG   = ["image/jpeg", "image/png", "image/webp"];
 
 // ─── Mock initial data (replace with API response) ────────────────────────────
+const storedUser = auth.getUser();
 const MOCK_PROFILE = {
-  firstName:   "Hermas",
-  lastName:    "Francisco",
-  email:       "hermas@candly.io",
+  firstName:   storedUser?.profile?.first_name || "Hermas",
+  lastName:    storedUser?.profile?.last_name || "Francisco",
+  email:       storedUser?.email || "hermas@candly.io",
   title:       "",
-  bio:         "",
+  bio:         storedUser?.profile?.bio || "",
   location:    "",
   linkedin:    "",
-  initials:    "HF",
-  avatarColor: "#22D3EE",
+  initials:    storedUser?.avatarInitials || "HF",
+  avatarColor: storedUser?.avatarColor || "#22D3EE",
   completion:  65,
 };
 
