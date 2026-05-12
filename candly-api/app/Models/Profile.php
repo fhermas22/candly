@@ -22,6 +22,9 @@ class Profile extends Model
         'first_name',
         'last_name',
         'bio',
+        'title',
+        'location',
+        'linkedin',
         'photo_path',
         'cv_path',
     ];
