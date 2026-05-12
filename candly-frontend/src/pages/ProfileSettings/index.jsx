@@ -8,7 +8,9 @@
 
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../../utils/api";
 import { auth } from "../../utils/auth";
+import { useNotifications } from "../../hooks/useNotifications";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CV_MAX_SIZE_MB = 5;
@@ -33,7 +35,7 @@ const MOCK_PROFILE = {
 const NAV_ITEMS = [
   {
     id: "info",
-    label: "Personal Information",
+    label: "Informations personnelles",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
         <circle cx="12" cy="8" r="4" />
@@ -43,7 +45,7 @@ const NAV_ITEMS = [
   },
   {
     id: "security",
-    label: "Security & Password",
+    label: "Sécurité & mot de passe",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4">
         <rect x="3" y="11" width="18" height="11" rx="2" />
@@ -106,7 +108,7 @@ function CompletionBar({ pct }) {
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-1.5">
-        <span className="text-xs" style={{ color: "#64748b" }}>Profile completion</span>
+        <span className="text-xs" style={{ color: "#64748b" }}>Progression du profil</span>
         <span className="text-xs font-semibold" style={{ color: "#22D3EE" }}>{pct}%</span>
       </div>
       <div
@@ -141,12 +143,12 @@ function AvatarUpload({ initials, color, onUpload }) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!ACCEPTED_IMG.includes(file.type)) {
-      alert("Unsupported format. Use JPG, PNG or WebP.");
+      alert("Format non supporté. Utilisez JPG, PNG ou WebP.");
       return;
     }
-    // TODO: upload to POST /api/profile/avatar (FormData)
+
     const url = URL.createObjectURL(file);
-    onUpload(url);
+    onUpload({ file, url });
     console.log("[Candly] Avatar upload →", file.name);
   };
 
@@ -186,7 +188,7 @@ function AvatarUpload({ initials, color, onUpload }) {
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" strokeLinecap="round" />
             <circle cx="12" cy="13" r="4" />
           </svg>
-          <span className="text-xs font-semibold" style={{ color }}>Edit</span>
+          <span className="text-xs font-semibold" style={{ color }}>Modifier</span>
         </motion.div>
       </motion.div>
 
@@ -224,15 +226,15 @@ function CVUploadZone({ file, onUpload, onRemove }) {
   const processFile = useCallback((f) => {
     if (!f) return;
     if (f.type !== "application/pdf") {
-      alert("Please upload a PDF file.");
+      alert("Veuillez téléverser un fichier PDF.");
       return;
     }
     if (f.size > CV_MAX_SIZE_MB * 1024 * 1024) {
-      alert(`Maximum file size allowed is ${CV_MAX_SIZE_MB} MB.`);
+      alert(`Taille maximale autorisée : ${CV_MAX_SIZE_MB} Mo.`);
       return;
     }
-    // TODO: upload to POST /api/profile/cv (FormData)
-    onUpload({ name: f.name, size: (f.size / (1024 * 1024)).toFixed(1) });
+
+    onUpload({ file: f, name: f.name, size: (f.size / (1024 * 1024)).toFixed(1) });
     console.log("[Candly] CV upload →", f.name);
   }, [onUpload]);
 
@@ -282,11 +284,11 @@ function CVUploadZone({ file, onUpload, onRemove }) {
         </div>
 
         <p className="font-heading font-bold text-sm mb-2" style={{ color: "#f1f5f9" }}>
-          Drop your CV here
+          Déposez votre CV ici
         </p>
         <p className="text-xs leading-relaxed mb-5" style={{ color: "#64748b" }}>
-          Drag & drop your PDF file or click to browse.<br />
-          Maximum size: <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{CV_MAX_SIZE_MB} MB</span>
+          Glissez-déposez votre fichier PDF ou cliquez pour parcourir.<br />
+          Taille maximale : <span style={{ color: "#e2e8f0", fontWeight: 600 }}>{CV_MAX_SIZE_MB} Mo</span>
         </p>
 
         <button
@@ -299,7 +301,7 @@ function CVUploadZone({ file, onUpload, onRemove }) {
             <polyline points="17 8 12 3 7 8" strokeLinecap="round" />
             <line x1="12" y1="3" x2="12" y2="15" strokeLinecap="round" />
           </svg>
-          Browse files
+          Parcourir les fichiers
         </button>
       </motion.div>
 
@@ -336,13 +338,13 @@ function CVUploadZone({ file, onUpload, onRemove }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate" style={{ color: "#f1f5f9" }}>{file.name}</p>
-              <p className="text-xs" style={{ color: "#64748b" }}>{file.size} MB · Uploaded just now</p>
+              <p className="text-xs" style={{ color: "#64748b" }}>{file.size} MB · Téléversé il y a un instant</p>
             </div>
             <button
               onClick={onRemove}
               className="btn-danger text-xs px-3 py-1.5 shrink-0"
             >
-              Delete
+              Supprimer
             </button>
           </motion.div>
         )}
@@ -355,9 +357,13 @@ function CVUploadZone({ file, onUpload, onRemove }) {
 export default function ProfileSettings() {
   const [activeNav, setActiveNav] = useState("info");
   const [profile, setProfile]     = useState(MOCK_PROFILE);
+  const [photoFile, setPhotoFile] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [cvFile, setCVFile]       = useState(null);
   const [saved, setSaved]         = useState(false);
+  const [saving, setSaving]       = useState(false);
+  const [error, setError]         = useState("");
+  const { pushNotification }      = useNotifications();
 
   const set = (key) => (e) => setProfile((p) => ({ ...p, [key]: e.target.value }));
 
@@ -368,11 +374,37 @@ export default function ProfileSettings() {
     return Math.round((filled / fields.length) * 100);
   };
 
-  const handleSave = () => {
-    // TODO: call PATCH /api/profile with profile state
-    console.log("[Candly] Profile save →", profile);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const handleSave = async () => {
+    setError("");
+    setSaving(true);
+
+    try {
+      const formData = new FormData();
+      if (photoFile) {
+        formData.append("photo", photoFile);
+      }
+      if (cvFile?.file) {
+        formData.append("cv", cvFile.file);
+      }
+
+        if (formData.has("photo") || formData.has("cv")) {
+        await api.post("/profile/media", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+
+      setSaved(true);
+      pushNotification({ message: "Vos documents ont été enregistrés.", type: "success" });
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      console.error("Failed to save profile media:", err);
+      setError("Impossible d'enregistrer les fichiers. Réessayez.");
+      pushNotification({ message: "Impossible d'enregistrer les fichiers. Réessayez.", type: "error" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const completion = computeCompletion();
@@ -387,12 +419,18 @@ export default function ProfileSettings() {
         className="mb-8"
       >
         <h1 className="font-heading font-black text-2xl tracking-tight mb-1" style={{ color: "#f1f5f9" }}>
-          Profile Settings
+          Paramètres du profil
         </h1>
         <p className="text-sm" style={{ color: "#64748b" }}>
-          Manage your personal information and documents
+          Gérez vos informations personnelles et vos documents.
         </p>
       </motion.div>
+
+      {error && (
+        <div className="mb-5 p-4 rounded-2xl" style={{ background: "rgba(239,68,68,0.1)", color: "#fecaca" }}>
+          {error}
+        </div>
+      )}
 
       <div className="grid gap-6" style={{ gridTemplateColumns: "280px 1fr" }}>
         {/* ── Left sidebar ─────────────────────────────────────────────── */}
@@ -407,7 +445,10 @@ export default function ProfileSettings() {
             <AvatarUpload
               initials={profile.initials}
               color={profile.avatarColor}
-              onUpload={setAvatarUrl}
+              onUpload={(data) => {
+                setPhotoFile(data.file);
+                setAvatarUrl(data.url);
+              }}
             />
             <p className="font-heading font-bold text-sm mt-4 mb-0.5" style={{ color: "#f1f5f9" }}>
               {profile.firstName} {profile.lastName}
@@ -448,36 +489,36 @@ export default function ProfileSettings() {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="glass-card p-7"
           >
-            <SectionLabel>Personal Information</SectionLabel>
+            <SectionLabel>Informations personnelles</SectionLabel>
 
             <div className="grid grid-cols-2 gap-4">
-              <Field label="First Name">
+              <Field label="Prénom">
                 <Input placeholder="Hermas" value={profile.firstName} onChange={set("firstName")} />
               </Field>
-              <Field label="Last Name">
+              <Field label="Nom">
                 <Input placeholder="Francisco" value={profile.lastName} onChange={set("lastName")} />
               </Field>
             </div>
 
             <Field label="Email">
-              <Input type="email" placeholder="you@example.com" value={profile.email} onChange={set("email")} />
+              <Input type="email" placeholder="vous@exemple.com" value={profile.email} onChange={set("email")} />
             </Field>
 
-            <Field label="Job Title">
-              <Input placeholder="e.g. Full-Stack Developer · Paris" value={profile.title} onChange={set("title")} />
+            <Field label="Intitulé du poste">
+              <Input placeholder="Ex. Développeur Full-Stack · Paris" value={profile.title} onChange={set("title")} />
             </Field>
 
-            <Field label="Bio">
+            <Field label="À propos">
               <Textarea
-                placeholder="Tell us about your experience, key skills, and career goals..."
+                placeholder="Parlez de votre expérience, de vos compétences clés et de vos objectifs professionnels..."
                 value={profile.bio}
                 onChange={set("bio")}
               />
             </Field>
 
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Location">
-                <Input placeholder="City, Country" value={profile.location} onChange={set("location")} />
+              <Field label="Localisation">
+                <Input placeholder="Paris, France" value={profile.location} onChange={set("location")} />
               </Field>
               <Field label="LinkedIn">
                 <Input placeholder="linkedin.com/in/..." value={profile.linkedin} onChange={set("linkedin")} />
@@ -514,7 +555,7 @@ export default function ProfileSettings() {
                   className="text-xs font-semibold"
                   style={{ color: "#10B981" }}
                 >
-                  ✓ Changes saved
+                  ✓ Enregistré
                 </motion.span>
               )}
             </AnimatePresence>
@@ -522,10 +563,10 @@ export default function ProfileSettings() {
               className="btn-ghost text-sm"
               onClick={() => setProfile(MOCK_PROFILE)}
             >
-              Cancel
+              Annuler
             </button>
-            <button className="btn-primary text-sm px-6 py-2.5" onClick={handleSave}>
-              Save Changes
+            <button className="btn-primary text-sm px-6 py-2.5" onClick={handleSave} disabled={saving}>
+              {saving ? "Enregistrement..." : "Enregistrer"}
             </button>
           </div>
         </div>
