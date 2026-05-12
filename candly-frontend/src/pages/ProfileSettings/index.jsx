@@ -2,11 +2,9 @@
  * ProfileSettings
  * Candly – Candidate profile settings page.
  * Sections: personal info form, photo upload, CV drag-and-drop.
- *
- * TODO: wire up to PATCH /api/profile and POST /api/profile/avatar + /api/profile/cv
  */
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../utils/api";
 import { auth } from "../../utils/auth";
@@ -16,19 +14,22 @@ import { useNotifications } from "../../hooks/useNotifications";
 const CV_MAX_SIZE_MB = 5;
 const ACCEPTED_IMG   = ["image/jpeg", "image/png", "image/webp"];
 
-// ─── Mock initial data (replace with API response) ────────────────────────────
-const storedUser = auth.getUser();
-const MOCK_PROFILE = {
-  firstName:   storedUser?.profile?.first_name || "Hermas",
-  lastName:    storedUser?.profile?.last_name || "Francisco",
-  email:       storedUser?.email || "hermas@candly.io",
-  title:       "",
-  bio:         storedUser?.profile?.bio || "",
-  location:    "",
-  linkedin:    "",
-  initials:    storedUser?.avatarInitials || "HF",
-  avatarColor: storedUser?.avatarColor || "#22D3EE",
-  completion:  65,
+// ─── Initial profile state builder ────────────────────────────────────────────
+const buildInitialProfile = () => {
+  const storedUser = auth.getUser();
+  return {
+    firstName:   storedUser?.profile?.first_name || "",
+    lastName:    storedUser?.profile?.last_name || "",
+    email:       storedUser?.email || "",
+    title:       "",
+    bio:         storedUser?.profile?.bio || "",
+    location:    "",
+    linkedin:    "",
+    initials:    storedUser?.avatarInitials || "CC",
+    avatarColor: storedUser?.avatarColor || "#22D3EE",
+    photoUrl:    storedUser?.profile?.photo_url || null,
+    cvUrl:       storedUser?.profile?.cv_url || null,
+  };
 };
 
 // ─── Sidebar nav items ────────────────────────────────────────────────────────
@@ -128,10 +129,11 @@ function CompletionBar({ pct }) {
 }
 
 /** Avatar upload zone with glow hover */
-function AvatarUpload({ initials, color, onUpload }) {
+function AvatarUpload({ initials, color, photoUrl, onUpload }) {
   const [isHovered, setIsHovered] = useState(false);
   const [glowing,   setGlowing]   = useState(false);
   const inputRef = useRef(null);
+  const isDarkMode = document.documentElement.dataset.theme === 'dark';
 
   const handleClick = () => {
     setGlowing(true);
@@ -172,17 +174,21 @@ function AvatarUpload({ initials, color, onUpload }) {
           border: `2px solid ${color}55`,
         }}
       >
-        {/* Initials */}
-        <span className="font-heading font-black text-3xl" style={{ color }}>
-          {initials}
-        </span>
+        {/* Photo or Initials */}
+        {photoUrl ? (
+          <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+        ) : (
+          <span className="font-heading font-black text-3xl" style={{ color }}>
+            {initials}
+          </span>
+        )}
 
         {/* Hover overlay */}
         <motion.div
           animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.18 }}
           className="absolute inset-0 flex flex-col items-center justify-center rounded-full"
-          style={{ background: "rgba(2,6,23,0.72)" }}
+          style={{ background: isDarkMode ? "rgba(2,6,23,0.72)" : "rgba(15,23,42,0.75)" }}
         >
           <svg className="w-5 h-5 mb-1" style={{ color }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" strokeLinecap="round" />
@@ -219,7 +225,7 @@ function AvatarUpload({ initials, color, onUpload }) {
 }
 
 /** CV drag-and-drop zone */
-function CVUploadZone({ file, onUpload, onRemove }) {
+function CVUploadZone({ file, cvUrl, onUpload, onRemove }) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef(null);
 
@@ -246,10 +252,13 @@ function CVUploadZone({ file, onUpload, onRemove }) {
     processFile(e.dataTransfer.files?.[0]);
   };
 
+  // Show existing CV if no new file is being uploaded
+  const displayedCV = file || (cvUrl ? { name: "CV uploadé", size: "—", cvUrl } : null);
+
   return (
     <div>
       <motion.div
-        onClick={() => !file && inputRef.current?.click()}
+        onClick={() => !displayedCV && inputRef.current?.click()}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
@@ -315,7 +324,7 @@ function CVUploadZone({ file, onUpload, onRemove }) {
 
       {/* Uploaded file preview */}
       <AnimatePresence>
-        {file && (
+        {displayedCV && (
           <motion.div
             initial={{ opacity: 0, height: 0, marginTop: 0 }}
             animate={{ opacity: 1, height: "auto", marginTop: 14 }}
@@ -337,15 +346,28 @@ function CVUploadZone({ file, onUpload, onRemove }) {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate" style={{ color: "#f1f5f9" }}>{file.name}</p>
-              <p className="text-xs" style={{ color: "#64748b" }}>{file.size} MB · Téléversé il y a un instant</p>
+              <p className="text-sm font-semibold truncate" style={{ color: "#f1f5f9" }}>{displayedCV.name}</p>
+              <p className="text-xs" style={{ color: "#64748b" }}>
+                {displayedCV.cvUrl ? "Téléversé" : `${displayedCV.size} Mo · Prêt à être téléversé`}
+              </p>
             </div>
-            <button
-              onClick={onRemove}
-              className="btn-danger text-xs px-3 py-1.5 shrink-0"
-            >
-              Supprimer
-            </button>
+            {displayedCV.cvUrl && (
+              <a
+                href={displayedCV.cvUrl}
+                download
+                className="btn-secondary text-xs px-3 py-1.5 shrink-0"
+              >
+                Télécharger
+              </a>
+            )}
+            {!displayedCV.cvUrl && (
+              <button
+                onClick={onRemove}
+                className="btn-danger text-xs px-3 py-1.5 shrink-0"
+              >
+                Supprimer
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -356,20 +378,59 @@ function CVUploadZone({ file, onUpload, onRemove }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ProfileSettings() {
   const [activeNav, setActiveNav] = useState("info");
-  const [profile, setProfile]     = useState(MOCK_PROFILE);
+  const [profile, setProfile]     = useState(buildInitialProfile());
   const [photoFile, setPhotoFile] = useState(null);
-  const [avatarUrl, setAvatarUrl] = useState(null);
   const [cvFile, setCVFile]       = useState(null);
   const [saved, setSaved]         = useState(false);
   const [saving, setSaving]       = useState(false);
   const [error, setError]         = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const { pushNotification }      = useNotifications();
+
+  // Load user profile data on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const user = auth.getUser();
+        if (user && user.profile) {
+          setProfile({
+            firstName:   user.profile.first_name || "",
+            lastName:    user.profile.last_name || "",
+            email:       user.email || "",
+            title:       "",
+            bio:         user.profile.bio || "",
+            location:    "",
+            linkedin:    "",
+            initials:    user.avatarInitials || "CC",
+            avatarColor: user.avatarColor || "#22D3EE",
+            photoUrl:    user.profile.photo_url || null,
+            cvUrl:       user.profile.cv_url || null,
+          });
+        }
+      } catch (err) {
+        console.error("Error loading profile:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const set = (key) => (e) => setProfile((p) => ({ ...p, [key]: e.target.value }));
 
   // Recompute completion based on filled fields
   const computeCompletion = () => {
-    const fields = [profile.firstName, profile.lastName, profile.email, profile.title, profile.bio, profile.location, avatarUrl, cvFile];
+    const fields = [
+      profile.firstName,
+      profile.lastName,
+      profile.email,
+      profile.title,
+      profile.bio,
+      profile.location,
+      profile.photoUrl,
+      profile.cvUrl,
+    ];
     const filled  = fields.filter(Boolean).length;
     return Math.round((filled / fields.length) * 100);
   };
@@ -387,12 +448,25 @@ export default function ProfileSettings() {
         formData.append("cv", cvFile.file);
       }
 
-        if (formData.has("photo") || formData.has("cv")) {
-        await api.post("/profile/media", formData, {
+      if (formData.has("photo") || formData.has("cv")) {
+        const response = await api.post("/profile/media", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
+
+        // Update local state with response data
+        if (response.data.profile) {
+          setProfile((p) => ({
+            ...p,
+            photoUrl: response.data.profile.photo_url,
+            cvUrl: response.data.profile.cv_url,
+          }));
+        }
+
+        // Clear file uploads after successful upload
+        setPhotoFile(null);
+        setCVFile(null);
       }
 
       setSaved(true);
@@ -400,14 +474,25 @@ export default function ProfileSettings() {
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error("Failed to save profile media:", err);
-      setError("Impossible d'enregistrer les fichiers. Réessayez.");
-      pushNotification({ message: "Impossible d'enregistrer les fichiers. Réessayez.", type: "error" });
+      const errorMsg = err.response?.data?.message || "Impossible d'enregistrer les fichiers. Réessayez.";
+      setError(errorMsg);
+      pushNotification({ message: errorMsg, type: "error" });
     } finally {
       setSaving(false);
     }
   };
 
   const completion = computeCompletion();
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p style={{ color: "#64748b" }}>Chargement du profil...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -445,9 +530,9 @@ export default function ProfileSettings() {
             <AvatarUpload
               initials={profile.initials}
               color={profile.avatarColor}
+              photoUrl={photoFile ? URL.createObjectURL(photoFile) : profile.photoUrl}
               onUpload={(data) => {
                 setPhotoFile(data.file);
-                setAvatarUrl(data.url);
               }}
             />
             <p className="font-heading font-bold text-sm mt-4 mb-0.5" style={{ color: "#f1f5f9" }}>
@@ -501,7 +586,7 @@ export default function ProfileSettings() {
             </div>
 
             <Field label="Email">
-              <Input type="email" placeholder="vous@exemple.com" value={profile.email} onChange={set("email")} />
+              <Input type="email" placeholder="vous@exemple.com" value={profile.email} onChange={set("email")} disabled />
             </Field>
 
             <Field label="Intitulé du poste">
@@ -536,6 +621,7 @@ export default function ProfileSettings() {
             <SectionLabel>Curriculum Vitae (PDF)</SectionLabel>
             <CVUploadZone
               file={cvFile}
+              cvUrl={profile.cvUrl}
               onUpload={(f) => { setCVFile(f); }}
               onRemove={() => setCVFile(null)}
             />
@@ -561,7 +647,7 @@ export default function ProfileSettings() {
             </AnimatePresence>
             <button
               className="btn-ghost text-sm"
-              onClick={() => setProfile(MOCK_PROFILE)}
+              onClick={() => setProfile(buildInitialProfile())}
             >
               Annuler
             </button>
