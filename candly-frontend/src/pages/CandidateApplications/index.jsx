@@ -8,6 +8,7 @@ import { useNavigate, Link } from 'react-router';
 
 import api from '../../utils/api';
 import { auth } from '../../utils/auth';
+import { useNotifications } from '../../hooks/useNotifications';
 import { ROUTES } from '../../routes/paths';
 
 const getBadge = (status) => {
@@ -21,6 +22,7 @@ const getBadge = (status) => {
 
 export default function CandidateApplications() {
   const navigate = useNavigate();
+  const { pushNotification } = useNotifications();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -74,9 +76,11 @@ export default function CandidateApplications() {
       setRefreshing(true);
       await api.delete(`/candidate/applications/${applicationId}`);
       await fetchApplications();
+      pushNotification({ message: 'Votre candidature a été retirée.', type: 'success' });
     } catch (err) {
       console.error('Failed to withdraw application:', err);
       setError('Impossible de retirer la candidature.');
+      pushNotification({ message: 'Impossible de retirer votre candidature.', type: 'error' });
     }
   };
 
