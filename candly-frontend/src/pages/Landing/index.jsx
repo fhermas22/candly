@@ -30,7 +30,12 @@ function Icon({ name, className = "w-6 h-6", title }) {
   const pathsByName = {
     user: (
       <>
-        <path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M20 21a8 8 0 1 0-16 0"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
         <path
           d="M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
           stroke="currentColor"
@@ -46,7 +51,12 @@ function Icon({ name, className = "w-6 h-6", title }) {
           stroke="currentColor"
           strokeWidth="2"
         />
-        <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M21 21l-4.35-4.35"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </>
     ),
     bolt: (
@@ -82,22 +92,62 @@ function Icon({ name, className = "w-6 h-6", title }) {
           strokeWidth="2"
           strokeLinejoin="round"
         />
-        <path d="M14 2v5h5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-        <path d="M8 13h8M8 17h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M14 2v5h5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8 13h8M8 17h8"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </>
     ),
     chart: (
       <>
-        <path d="M4 19V5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M8 15v-5M12 15V7M16 15v-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M4 19V5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M4 19h16"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M8 15v-5M12 15V7M16 15v-3"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </>
     ),
     sliders: (
       <>
-        <path d="M4 6h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M7 6v12M17 18V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M7 10h6M11 14h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M4 6h16M4 18h16"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M7 6v12M17 18V6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M7 10h6M11 14h6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </>
     ),
     globe: (
@@ -107,7 +157,12 @@ function Icon({ name, className = "w-6 h-6", title }) {
           stroke="currentColor"
           strokeWidth="2"
         />
-        <path d="M2 12h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M2 12h20"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
         <path
           d="M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22c-3-3-4.5-6.5-4.5-10S9 5 12 2Z"
           stroke="currentColor"
@@ -173,31 +228,98 @@ const MOCK_JOBS = [
 ];
 
 const MOCK_STEPS = [
-  { num: "01", icon: "user", title: "Créez votre profil", desc: "Renseignez vos informations, téléchargez votre photo et votre CV en quelques secondes." },
-  { num: "02", icon: "search", title: "Explorez les offres", desc: "Parcourez les annonces filtrées selon vos compétences, localisation et ambitions." },
-  { num: "03", icon: "bolt", title: "Postulez en 1 clic", desc: "Envoyez votre candidature instantanément et suivez son évolution depuis votre tableau de bord." },
-  { num: "04", icon: "check", title: "Recevez une réponse", desc: "L'administrateur examine votre profil et vous notifie directement de la décision finale." },
+  {
+    num: "01",
+    icon: "user",
+    title: "Créez votre profil",
+    desc: "Renseignez vos informations, téléchargez votre photo et votre CV en quelques secondes.",
+  },
+  {
+    num: "02",
+    icon: "search",
+    title: "Explorez les offres",
+    desc: "Parcourez les annonces filtrées selon vos compétences, localisation et ambitions.",
+  },
+  {
+    num: "03",
+    icon: "bolt",
+    title: "Postulez en 1 clic",
+    desc: "Envoyez votre candidature instantanément et suivez son évolution depuis votre tableau de bord.",
+  },
+  {
+    num: "04",
+    icon: "check",
+    title: "Recevez une réponse",
+    desc: "L'administrateur examine votre profil et vous notifie directement de la décision finale.",
+  },
 ];
 
 const MOCK_FEATURES = [
-  { icon: "shield", iconBg: "rgba(34,211,238,0.1)", iconBorder: "rgba(34,211,238,0.2)", title: "Sécurité renforcée", desc: "Authentification JWT/Sanctum avec redirection intelligente selon votre rôle." },
-  { icon: "document", iconBg: "rgba(16,185,129,0.1)", iconBorder: "rgba(16,185,129,0.2)", title: "Gestion de profil complète", desc: "Upload de photo optimisé, CV PDF jusqu'à 5 Mo, et bio personnalisée." },
-  { icon: "chart", iconBg: "rgba(245,158,11,0.1)", iconBorder: "rgba(245,158,11,0.2)", title: "Suivi en temps réel", desc: "Tableaux de bord avec badges de statut colorés — Pending, Accepted, Rejected." },
-  { icon: "bolt", iconBg: "rgba(244,63,94,0.1)", iconBorder: "rgba(244,63,94,0.2)", title: "Performance optimisée", desc: "Mise en cache des annonces, skeleton loaders et animations Framer Motion fluides." },
-  { icon: "sliders", iconBg: "rgba(34,211,238,0.1)", iconBorder: "rgba(34,211,238,0.15)", title: "Panneau Admin puissant", desc: "Gestion CRUD des offres, modération des comptes et revue des candidatures." },
-  { icon: "globe", iconBg: "rgba(16,185,129,0.1)", iconBorder: "rgba(16,185,129,0.15)", title: "Design \"Aura Tech\"", desc: "Dark mode premium, Glassmorphism, néons Cyan et esthétique haut de gamme." },
+  {
+    icon: "shield",
+    iconBg: "rgba(34,211,238,0.1)",
+    iconBorder: "rgba(34,211,238,0.2)",
+    title: "Sécurité renforcée",
+    desc: "Authentification JWT/Sanctum avec redirection intelligente selon votre rôle.",
+  },
+  {
+    icon: "document",
+    iconBg: "rgba(16,185,129,0.1)",
+    iconBorder: "rgba(16,185,129,0.2)",
+    title: "Gestion de profil complète",
+    desc: "Upload de photo optimisé, CV PDF jusqu'à 5 Mo, et bio personnalisée.",
+  },
+  {
+    icon: "chart",
+    iconBg: "rgba(245,158,11,0.1)",
+    iconBorder: "rgba(245,158,11,0.2)",
+    title: "Suivi en temps réel",
+    desc: "Tableaux de bord avec badges de statut colorés — Pending, Accepted, Rejected.",
+  },
+  {
+    icon: "bolt",
+    iconBg: "rgba(244,63,94,0.1)",
+    iconBorder: "rgba(244,63,94,0.2)",
+    title: "Performance optimisée",
+    desc: "Mise en cache des annonces, skeleton loaders et animations Framer Motion fluides.",
+  },
+  {
+    icon: "sliders",
+    iconBg: "rgba(34,211,238,0.1)",
+    iconBorder: "rgba(34,211,238,0.15)",
+    title: "Panneau Admin puissant",
+    desc: "Gestion CRUD des offres, modération des comptes et revue des candidatures.",
+  },
+  {
+    icon: "globe",
+    iconBg: "rgba(16,185,129,0.1)",
+    iconBorder: "rgba(16,185,129,0.15)",
+    title: 'Design "Aura Tech"',
+    desc: "Dark mode premium, Glassmorphism, néons Cyan et esthétique haut de gamme.",
+  },
 ];
 
-const POPULAR_TAGS = ["React", "Laravel", "UI/UX Design", "DevOps", "Product Manager", "Data Science"];
+const POPULAR_TAGS = [
+  "React",
+  "Laravel",
+  "UI/UX Design",
+  "DevOps",
+  "Product Manager",
+  "Data Science",
+];
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
 const fadeUp = {
-  hidden:  { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] } },
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
 };
 
 const staggerContainer = {
-  hidden:  {},
+  hidden: {},
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
@@ -233,15 +355,24 @@ function Logo() {
           boxShadow: "0 0 16px rgba(34,211,238,0.45)",
         }}
       >
-        <span className="font-heading font-black text-sm" style={{ color: "var(--navy-900)" }}>
+        <span
+          className="font-heading font-black text-sm"
+          style={{ color: "var(--navy-900)" }}
+        >
           C
         </span>
         <span
           className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
-          style={{ background: "#10B981", boxShadow: "0 0 6px rgba(16,185,129,0.8)" }}
+          style={{
+            background: "#10B981",
+            boxShadow: "0 0 6px rgba(16,185,129,0.8)",
+          }}
         />
       </div>
-      <span className="font-heading font-bold text-lg" style={{ color: "#f1f5f9" }}>
+      <span
+        className="font-heading font-bold text-lg"
+        style={{ color: "#f1f5f9" }}
+      >
         Cand<span style={{ color: "#22D3EE" }}>ly</span>
       </span>
     </Link>
@@ -278,10 +409,72 @@ function Navbar() {
         <Logo />
       </div>
       <div className="hidden md:flex items-center gap-2 shrink-0">
-        <Link to={ROUTES.OFFRES} className="btn-ghost">Offres</Link>
-        <Link to={homeWithHash(LANDING_ANCHOR.HOW_IT_WORKS)} className="btn-ghost">Comment ça marche</Link>
-        <Link to={authPath(AUTH_MODE.LOGIN)} className="btn-ghost">Connexion</Link>
-        <Link to={authPath(AUTH_MODE.REGISTER)} className="btn-primary">Créer un compte</Link>
+        <Link to={ROUTES.OFFRES} className="btn-ghost">
+          Offres
+        </Link>
+        <Link
+          to={homeWithHash(LANDING_ANCHOR.HOW_IT_WORKS)}
+          className="btn-ghost"
+        >
+          Comment ça marche
+        </Link>
+        <Link to={authPath(AUTH_MODE.LOGIN)} className="btn-ghost">
+          Connexion
+        </Link>
+        <button
+          type="button"
+          onClick={() => {
+            const next =
+              document.documentElement.dataset.theme === "dark"
+                ? "light"
+                : "dark";
+            document.documentElement.dataset.theme = next;
+            localStorage.setItem("candly-theme", next);
+          }}
+          className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors"
+          style={{ color: "var(--text-muted)" }}
+          aria-label="Basculer le thème"
+          title="Basculer le thème"
+        >
+          {document.documentElement.dataset.theme === "dark" ? (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              className="w-4 h-4"
+              aria-hidden
+            >
+              <path d="M12 3a1 1 0 0 0 0 2" strokeLinecap="round" />
+              <path d="M4.2 4.2l1.4 1.4" strokeLinecap="round" />
+              <path d="M3 12a1 1 0 0 0 2 0" strokeLinecap="round" />
+              <path d="M4.2 19.8l1.4-1.4" strokeLinecap="round" />
+              <path d="M12 21a1 1 0 0 0 0-2" strokeLinecap="round" />
+              <path d="M19.8 19.8l-1.4-1.4" strokeLinecap="round" />
+              <path d="M21 12a1 1 0 0 0-2 0" strokeLinecap="round" />
+              <path d="M19.8 4.2l-1.4 1.4" strokeLinecap="round" />
+              <circle cx="12" cy="12" r="4" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              className="w-4 h-4"
+              aria-hidden
+            >
+              <path
+                d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
+        </button>
+        <Link to={authPath(AUTH_MODE.REGISTER)} className="btn-primary">
+          Créer un compte
+        </Link>
       </div>
 
       <div className="md:hidden flex shrink-0 items-center">
@@ -292,7 +485,15 @@ function Navbar() {
           aria-expanded={open}
           aria-label="Ouvrir le menu"
         >
-          <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+          <svg
+            width={20}
+            height={20}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            aria-hidden
+          >
             {open ? (
               <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
             ) : (
@@ -307,13 +508,40 @@ function Navbar() {
       {open ? (
         <div
           className="absolute top-16 left-0 right-0 md:hidden px-4 py-4"
-          style={{ background: "rgba(2, 6, 23, 0.92)", borderBottom: "1px solid rgba(34,211,238,0.08)" }}
+          style={{
+            background: "var(--surface-header)",
+            borderBottom: "1px solid var(--border-subtle)",
+          }}
         >
           <div className="flex flex-col gap-2">
-            <Link to={ROUTES.OFFRES} onClick={() => setOpen(false)} className="btn-secondary w-full justify-center">Offres</Link>
-            <Link to={homeWithHash(LANDING_ANCHOR.HOW_IT_WORKS)} onClick={() => setOpen(false)} className="btn-secondary w-full justify-center">Comment ça marche</Link>
-            <Link to={authPath(AUTH_MODE.LOGIN)} onClick={() => setOpen(false)} className="btn-secondary w-full justify-center">Connexion</Link>
-            <Link to={authPath(AUTH_MODE.REGISTER)} onClick={() => setOpen(false)} className="btn-primary w-full justify-center">Créer un compte</Link>
+            <Link
+              to={ROUTES.OFFRES}
+              onClick={() => setOpen(false)}
+              className="btn-secondary w-full justify-center"
+            >
+              Offres
+            </Link>
+            <Link
+              to={homeWithHash(LANDING_ANCHOR.HOW_IT_WORKS)}
+              onClick={() => setOpen(false)}
+              className="btn-secondary w-full justify-center"
+            >
+              Comment ça marche
+            </Link>
+            <Link
+              to={authPath(AUTH_MODE.LOGIN)}
+              onClick={() => setOpen(false)}
+              className="btn-secondary w-full justify-center"
+            >
+              Connexion
+            </Link>
+            <Link
+              to={authPath(AUTH_MODE.REGISTER)}
+              onClick={() => setOpen(false)}
+              className="btn-primary w-full justify-center"
+            >
+              Créer un compte
+            </Link>
           </div>
         </div>
       ) : null}
@@ -327,9 +555,7 @@ function HeroSection() {
   const [location, setLocation] = useState("");
 
   return (
-    <section
-      className="relative min-h-svh flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-10 pt-24 pb-20 overflow-hidden"
-    >
+    <section className="relative min-h-svh flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-10 pt-24 pb-20 overflow-hidden">
       {/* Grid overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -337,7 +563,8 @@ function HeroSection() {
           backgroundImage:
             "linear-gradient(rgba(34,211,238,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(34,211,238,0.04) 1px,transparent 1px)",
           backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse 85% 75% at 50% 35%, black 0%, transparent 72%)",
+          maskImage:
+            "radial-gradient(ellipse 85% 75% at 50% 35%, black 0%, transparent 72%)",
         }}
       />
 
@@ -354,7 +581,10 @@ function HeroSection() {
       >
         <span
           className="w-1.5 h-1.5 rounded-full animate-pulse"
-          style={{ background: "#22D3EE", boxShadow: "0 0 8px rgba(34,211,238,0.9)" }}
+          style={{
+            background: "#22D3EE",
+            boxShadow: "0 0 8px rgba(34,211,238,0.9)",
+          }}
         />
         <span className="text-xs font-medium" style={{ color: "#22D3EE" }}>
           Votre plateforme de recrutement !
@@ -372,7 +602,8 @@ function HeroSection() {
         Votre prochaine opportunité{" "}
         <span
           style={{
-            background: "linear-gradient(135deg,#22D3EE 0%,#67e8f9 50%,#10B981 100%)",
+            background:
+              "linear-gradient(135deg,#22D3EE 0%,#67e8f9 50%,#10B981 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -390,7 +621,9 @@ function HeroSection() {
         className="text-[clamp(0.98rem,2.2vw,1.15rem)] max-w-lg mb-8 sm:mb-11 leading-relaxed"
         style={{ color: "var(--text-secondary)" }}
       >
-        Candly connecte les meilleurs talents aux entreprises qui comptent. Déposez votre profil, postulez en un clic, suivez chaque étape en temps réel.
+        Candly connecte les meilleurs talents aux entreprises qui comptent.
+        Déposez votre profil, postulez en un clic, suivez chaque étape en temps
+        réel.
       </motion.p>
 
       {/* Search Bar */}
@@ -412,7 +645,10 @@ function HeroSection() {
           width={16}
           height={16}
           style={{ color: "#64748b" }}
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
         >
           <circle cx="11" cy="11" r="7" />
           <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
@@ -428,7 +664,10 @@ function HeroSection() {
         />
 
         {/* Divider */}
-        <div className="w-px h-7 mx-2 shrink-0" style={{ background: "rgba(34,211,238,0.1)" }} />
+        <div
+          className="w-px h-7 mx-2 shrink-0"
+          style={{ background: "rgba(34,211,238,0.1)" }}
+        />
 
         <input
           type="text"
@@ -454,7 +693,9 @@ function HeroSection() {
         transition={{ duration: 0.5, delay: 0.45 }}
         className="flex flex-wrap justify-center items-center gap-2 mt-4"
       >
-        <span className="text-xs mr-1" style={{ color: "#475569" }}>Populaire :</span>
+        <span className="text-xs mr-1" style={{ color: "#475569" }}>
+          Populaire :
+        </span>
         {POPULAR_TAGS.map((tag) => (
           <Link
             key={tag}
@@ -500,7 +741,12 @@ function HeroSection() {
           { num: "94%", label: "Taux de satisfaction" },
         ].map((stat, i) => (
           <div key={stat.label} className="flex items-center gap-10">
-            {i > 0 && <div className="w-px h-10" style={{ background: "rgba(34,211,238,0.12)" }} />}
+            {i > 0 && (
+              <div
+                className="w-px h-10"
+                style={{ background: "rgba(34,211,238,0.12)" }}
+              />
+            )}
             <div className="text-center">
               <div
                 className="font-heading text-3xl font-black leading-tight"
@@ -513,7 +759,10 @@ function HeroSection() {
               >
                 {stat.num}
               </div>
-              <div className="text-sm mt-1.5 font-medium tracking-wide" style={{ color: "#94a3b8" }}>
+              <div
+                className="text-sm mt-1.5 font-medium tracking-wide"
+                style={{ color: "#94a3b8" }}
+              >
                 {stat.label}
               </div>
             </div>
@@ -541,22 +790,45 @@ function JobCard({ job, index }) {
       <div className="flex items-start justify-between gap-3 mb-4">
         <div
           className="w-11 h-11 rounded-xl flex items-center justify-center font-heading font-black text-sm shrink-0"
-          style={{ background: job.logoBg, color: job.logoColor, border: `1px solid ${job.logoColor}20` }}
+          style={{
+            background: job.logoBg,
+            color: job.logoColor,
+            border: `1px solid ${job.logoColor}20`,
+          }}
         >
           {job.initials}
         </div>
         {job.badge === "new" ? (
-          <span className="badge shrink-0" style={{ background: "rgba(34,211,238,0.12)", color: "#22D3EE", border: "1px solid rgba(34,211,238,0.25)", fontSize: "11px" }}>
+          <span
+            className="badge shrink-0"
+            style={{
+              background: "rgba(34,211,238,0.12)",
+              color: "#22D3EE",
+              border: "1px solid rgba(34,211,238,0.25)",
+              fontSize: "11px",
+            }}
+          >
             Nouveau
           </span>
         ) : (
-          <span className="badge shrink-0" style={{ background: "rgba(244,63,94,0.12)", color: "#F43F5E", border: "1px solid rgba(244,63,94,0.25)", fontSize: "11px" }}>
+          <span
+            className="badge shrink-0"
+            style={{
+              background: "rgba(244,63,94,0.12)",
+              color: "#F43F5E",
+              border: "1px solid rgba(244,63,94,0.25)",
+              fontSize: "11px",
+            }}
+          >
             Urgent
           </span>
         )}
       </div>
 
-      <h3 className="font-heading font-bold text-base mb-1" style={{ color: "#f1f5f9" }}>
+      <h3
+        className="font-heading font-bold text-base mb-1"
+        style={{ color: "#f1f5f9" }}
+      >
         {job.title}
       </h3>
       <p className="text-sm mb-4 leading-snug" style={{ color: "#94a3b8" }}>
@@ -569,7 +841,11 @@ function JobCard({ job, index }) {
           <span
             key={t}
             className="text-xs px-3 py-1.5 rounded-md leading-tight"
-            style={{ background: "rgba(255,255,255,0.06)", color: "#cbd5e1", border: "1px solid rgba(255,255,255,0.1)" }}
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              color: "#cbd5e1",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
           >
             {t}
           </span>
@@ -582,10 +858,30 @@ function JobCard({ job, index }) {
         style={{ borderTop: "1px solid rgba(34,211,238,0.12)" }}
       >
         <div className="min-w-0">
-          <div className="font-heading font-bold text-sm sm:text-base" style={{ color: "#10B981" }}>{job.salary}</div>
-          <div className="text-sm mt-1 flex items-center gap-1.5" style={{ color: "#94a3b8" }}>
-            <svg className="w-3.5 h-3.5 shrink-0" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" strokeLinecap="round" />
+          <div
+            className="font-heading font-bold text-sm sm:text-base"
+            style={{ color: "#10B981" }}
+          >
+            {job.salary}
+          </div>
+          <div
+            className="text-sm mt-1 flex items-center gap-1.5"
+            style={{ color: "#94a3b8" }}
+          >
+            <svg
+              className="w-3.5 h-3.5 shrink-0"
+              width={14}
+              height={14}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden
+            >
+              <path
+                d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                strokeLinecap="round"
+              />
               <circle cx="12" cy="10" r="3" />
             </svg>
             <span className="truncate">{job.mode}</span>
@@ -611,15 +907,15 @@ function JobsSection() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await api.get('/jobs');
+        const response = await api.get("/jobs");
         // Transform API data to match component expectations
-        const transformedJobs = response.data.data.map(job => ({
+        const transformedJobs = response.data.data.map((job) => ({
           id: job.id,
           title: job.title,
-          company: 'Candly', // Since admin_id, we can enhance later
+          company: "Candly", // Since admin_id, we can enhance later
           location: job.location,
-          mode: 'À définir', // Not in API yet
-          salary: job.salary_range || 'À négocier',
+          mode: "À définir", // Not in API yet
+          salary: job.salary_range || "À négocier",
           tags: [], // Not in API yet
           badge: null,
           logoColor: "#22D3EE",
@@ -628,8 +924,8 @@ function JobsSection() {
         }));
         setJobs(transformedJobs);
       } catch (err) {
-        console.error('Failed to fetch jobs:', err);
-        setError('Impossible de charger les offres');
+        console.error("Failed to fetch jobs:", err);
+        setError("Impossible de charger les offres");
         // Fallback to mock data
         setJobs(MOCK_JOBS);
       } finally {
@@ -656,7 +952,10 @@ function JobsSection() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-11">
         <AnimatedSection>
           <SectionTag>Opportunités récentes</SectionTag>
-          <h2 className="font-heading text-[clamp(1.8rem,3vw,2.5rem)] font-black tracking-tight" style={{ color: "#f1f5f9" }}>
+          <h2
+            className="font-heading text-[clamp(1.8rem,3vw,2.5rem)] font-black tracking-tight"
+            style={{ color: "#f1f5f9" }}
+          >
             Dernières offres publiées
           </h2>
         </AnimatedSection>
@@ -667,8 +966,21 @@ function JobsSection() {
             style={{ color: "#22D3EE" }}
           >
             Voir toutes les offres
-            <svg className="w-4 h-4 shrink-0" width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
-              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              className="w-4 h-4 shrink-0"
+              width={16}
+              height={16}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden
+            >
+              <path
+                d="M5 12h14M12 5l7 7-7 7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </Link>
         </AnimatedSection>
@@ -701,10 +1013,16 @@ function HowItWorksSection() {
     >
       <AnimatedSection className="text-center max-w-xl mx-auto mb-10 sm:mb-16">
         <SectionTag>Processus simplifié</SectionTag>
-        <h2 className="font-heading text-[clamp(1.7rem,4.5vw,2.5rem)] font-black tracking-tight mb-4" style={{ color: "var(--text-primary)" }}>
+        <h2
+          className="font-heading text-[clamp(1.7rem,4.5vw,2.5rem)] font-black tracking-tight mb-4"
+          style={{ color: "var(--text-primary)" }}
+        >
           Postuler n'a jamais été aussi simple
         </h2>
-        <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{ color: "#cbd5e1", lineHeight: 1.7 }}>
+        <p
+          className="text-base sm:text-lg max-w-2xl mx-auto"
+          style={{ color: "#cbd5e1", lineHeight: 1.7 }}
+        >
           Trois étapes suffisent pour décrocher votre prochaine opportunité.
         </p>
       </AnimatedSection>
@@ -734,7 +1052,8 @@ function HowItWorksSection() {
             <span
               className="absolute top-4 right-5 font-heading text-5xl font-black leading-none select-none"
               style={{
-                background: "linear-gradient(135deg,rgba(34,211,238,0.14),rgba(34,211,238,0.03))",
+                background:
+                  "linear-gradient(135deg,rgba(34,211,238,0.14),rgba(34,211,238,0.03))",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -753,7 +1072,10 @@ function HowItWorksSection() {
             >
               <Icon name={step.icon} className="w-6 h-6" title={step.title} />
             </div>
-            <h3 className="font-heading font-bold text-base mb-2.5" style={{ color: "#f1f5f9" }}>
+            <h3
+              className="font-heading font-bold text-base mb-2.5"
+              style={{ color: "#f1f5f9" }}
+            >
               {step.title}
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
@@ -772,11 +1094,20 @@ function FeaturesSection() {
     <section className="px-4 sm:px-6 lg:px-10 py-16 sm:py-24">
       <AnimatedSection className="max-w-lg mb-14">
         <SectionTag>Pourquoi Candly</SectionTag>
-        <h2 className="font-heading text-[clamp(1.7rem,4.5vw,2.5rem)] font-black tracking-tight mb-4" style={{ color: "var(--text-primary)" }}>
-          Une expérience premium,<br />de A à Z
+        <h2
+          className="font-heading text-[clamp(1.7rem,4.5vw,2.5rem)] font-black tracking-tight mb-4"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Une expérience premium,
+          <br />
+          de A à Z
         </h2>
-        <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          Tout ce dont vous avez besoin pour gérer votre carrière avec élégance et efficacité.
+        <p
+          className="text-base leading-relaxed"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          Tout ce dont vous avez besoin pour gérer votre carrière avec élégance
+          et efficacité.
         </p>
       </AnimatedSection>
 
@@ -792,17 +1123,26 @@ function FeaturesSection() {
             key={f.title}
             variants={fadeUp}
             className="p-7 rounded-2xl"
-            style={{ background: "rgba(10,22,40,0.6)", border: "1px solid rgba(34,211,238,0.08)" }}
+            style={{
+              background: "rgba(10,22,40,0.6)",
+              border: "1px solid rgba(34,211,238,0.08)",
+            }}
             whileHover={{ borderColor: "rgba(34,211,238,0.2)", y: -2 }}
             transition={{ duration: 0.2 }}
           >
             <div
               className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-5"
-              style={{ background: f.iconBg, border: `1px solid ${f.iconBorder}` }}
+              style={{
+                background: f.iconBg,
+                border: `1px solid ${f.iconBorder}`,
+              }}
             >
               <Icon name={f.icon} className="w-6 h-6" title={f.title} />
             </div>
-            <h3 className="font-heading font-bold text-sm mb-2" style={{ color: "#f1f5f9" }}>
+            <h3
+              className="font-heading font-bold text-sm mb-2"
+              style={{ color: "#f1f5f9" }}
+            >
               {f.title}
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
@@ -832,21 +1172,39 @@ function CTASection() {
           {/* Ambient glow */}
           <div
             className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(ellipse,rgba(34,211,238,0.1) 0%,transparent 70%)" }}
+            style={{
+              background:
+                "radial-gradient(ellipse,rgba(34,211,238,0.1) 0%,transparent 70%)",
+            }}
           />
 
           <SectionTag>Rejoignez Candly</SectionTag>
-          <h2 className="font-heading text-[clamp(1.8rem,3.5vw,2.4rem)] font-black tracking-tight mb-4" style={{ color: "#f1f5f9" }}>
-            Prêt à booster<br />votre carrière ?
+          <h2
+            className="font-heading text-[clamp(1.8rem,3.5vw,2.4rem)] font-black tracking-tight mb-4"
+            style={{ color: "#f1f5f9" }}
+          >
+            Prêt à booster
+            <br />
+            votre carrière ?
           </h2>
-          <p className="text-base mb-10 leading-relaxed" style={{ color: "#94a3b8" }}>
-            Créez votre profil gratuitement et accédez aux meilleures opportunités du marché dès aujourd'hui.
+          <p
+            className="text-base mb-10 leading-relaxed"
+            style={{ color: "#94a3b8" }}
+          >
+            Créez votre profil gratuitement et accédez aux meilleures
+            opportunités du marché dès aujourd'hui.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link to={authPath(AUTH_MODE.REGISTER)} className="btn-primary px-7 py-3 text-sm inline-flex items-center justify-center">
+            <Link
+              to={authPath(AUTH_MODE.REGISTER)}
+              className="btn-primary px-7 py-3 text-sm inline-flex items-center justify-center"
+            >
               Créer mon profil gratuitement
             </Link>
-            <Link to={ROUTES.OFFRES} className="btn-secondary px-7 py-3 text-sm inline-flex items-center justify-center">
+            <Link
+              to={ROUTES.OFFRES}
+              className="btn-secondary px-7 py-3 text-sm inline-flex items-center justify-center"
+            >
               Parcourir les offres
             </Link>
           </div>
@@ -868,21 +1226,29 @@ function LegalSection() {
     >
       <div className="max-w-3xl mx-auto space-y-10">
         <div id={LANDING_ANCHOR.LEGAL} className="scroll-mt-24">
-          <h2 className="font-heading font-bold text-base mb-3" style={{ color: "#f1f5f9" }}>
+          <h2
+            className="font-heading font-bold text-base mb-3"
+            style={{ color: "#f1f5f9" }}
+          >
             Mentions légales
           </h2>
           <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
-            Candly est un service de démonstration. Les informations sur l&apos;éditeur, l&apos;hébergeur et la propriété
-            intellectuelle seront complétées avant toute mise en production.
+            Candly est un service de démonstration. Les informations sur
+            l&apos;éditeur, l&apos;hébergeur et la propriété intellectuelle
+            seront complétées avant toute mise en production.
           </p>
         </div>
         <div id={LANDING_ANCHOR.PRIVACY} className="scroll-mt-24">
-          <h2 className="font-heading font-bold text-base mb-3" style={{ color: "#f1f5f9" }}>
+          <h2
+            className="font-heading font-bold text-base mb-3"
+            style={{ color: "#f1f5f9" }}
+          >
             Politique de confidentialité
           </h2>
           <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
-            Les données saisies sur Candly servent uniquement au fonctionnement du prototype. Pour toute question,
-            utilisez le lien Contact ci-dessous.
+            Les données saisies sur Candly servent uniquement au fonctionnement
+            du prototype. Pour toute question, utilisez le lien Contact
+            ci-dessous.
           </p>
         </div>
       </div>
@@ -899,13 +1265,25 @@ function Footer() {
     >
       <Logo />
       <div className="flex flex-wrap gap-5">
-        <Link to={homeWithHash(LANDING_ANCHOR.LEGAL)} className="btn-ghost text-xs p-0" style={{ color: "#475569" }}>
+        <Link
+          to={homeWithHash(LANDING_ANCHOR.LEGAL)}
+          className="btn-ghost text-xs p-0"
+          style={{ color: "#475569" }}
+        >
           Mentions légales
         </Link>
-        <Link to={homeWithHash(LANDING_ANCHOR.PRIVACY)} className="btn-ghost text-xs p-0" style={{ color: "#475569" }}>
+        <Link
+          to={homeWithHash(LANDING_ANCHOR.PRIVACY)}
+          className="btn-ghost text-xs p-0"
+          style={{ color: "#475569" }}
+        >
           Confidentialité
         </Link>
-        <a href="mailto:contact@candly.io" className="btn-ghost text-xs p-0" style={{ color: "#475569" }}>
+        <a
+          href="mailto:contact@candly.io"
+          className="btn-ghost text-xs p-0"
+          style={{ color: "#475569" }}
+        >
           Contact
         </a>
       </div>
@@ -924,13 +1302,19 @@ export default function Landing() {
     const id = location.hash?.replace(/^#/, "");
     if (!id) return;
     requestAnimationFrame(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document
+        .getElementById(id)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }, [location.hash, location.pathname]);
 
   return (
-    <div className="min-h-screen">
+    <div
+      className="min-h-screen"
+      style={{ background: "var(--app-bg)", color: "var(--text-primary)" }}
+    >
       <Navbar />
+
       <HeroSection />
       <JobsSection />
       <HowItWorksSection />
