@@ -244,17 +244,23 @@ function UserAvatar({ user, size = "md" }) {
     lg: "w-11 h-11 text-base",
   };
 
+  const hasPhoto = user.profile?.photo_url;
+
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-heading font-bold shrink-0`}
+      className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-heading font-bold shrink-0 overflow-hidden`}
       style={{
-        background: `linear-gradient(135deg, ${user.avatarColor}33 0%, ${user.avatarColor}55 100%)`,
+        background: hasPhoto ? "transparent" : `linear-gradient(135deg, ${user.avatarColor}33 0%, ${user.avatarColor}55 100%)`,
         border: `1.5px solid ${user.avatarColor}55`,
         color: user.avatarColor,
         boxShadow: `0 0 10px ${user.avatarColor}25`,
       }}
     >
-      {user.avatarInitials}
+      {hasPhoto ? (
+        <img src={user.profile.photo_url} alt={user.displayName || "User"} className="w-full h-full object-cover" />
+      ) : (
+        user.avatarInitials
+      )}
     </div>
   );
 }
@@ -590,7 +596,7 @@ export default function MainLayout({
     email: storedUser?.email ?? MOCK_USER.email,
     avatarInitials: storedUser?.avatarInitials ?? MOCK_USER.avatarInitials,
     avatarColor: storedUser?.avatarColor ?? MOCK_USER.avatarColor,
-    photoUrl: storedUser?.profile?.photo_url ?? null,
+    profile: storedUser?.profile || null,
   };
 
   const handleSignOut = () => {
