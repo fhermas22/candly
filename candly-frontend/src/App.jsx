@@ -1,4 +1,5 @@
 import { BrowserRouter } from "react-router";
+import { NotificationProvider } from "./hooks/NotificationProvider";
 
 import AppRoutes from "./routes/AppRoutes";
 
@@ -8,7 +9,9 @@ import AppRoutes from "./routes/AppRoutes";
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <NotificationProvider>
+        <AppRoutes />
+      </NotificationProvider>
     </BrowserRouter>
   );
 }

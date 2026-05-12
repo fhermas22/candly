@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,7 +21,9 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'first_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
         ]);
 
         $user = User::query()->create([
@@ -30,15 +33,16 @@ class AuthController extends Controller
             'status' => true,
         ]);
 
+        $user->profile()->create([
+            'first_name' => $validated['first_name'] ?? '',
+            'last_name' => $validated['last_name'] ?? '',
+        ]);
+
         // Token generation: Sanctum stores a hashed token server-side and returns the plain value once.
         $token = $user->createToken('candly-api')->plainTextToken;
 
         return response()->json([
-            'user' => [
-                'id' => $user->id,
-                'email' => $user->email,
-                'role' => $user->role,
-            ],
+            'user' => new UserResource($user->load('profile')),
             'plainTextToken' => $token,
         ], 201);
     }
@@ -65,11 +69,7 @@ class AuthController extends Controller
         $token = $user->createToken('candly-api')->plainTextToken;
 
         return response()->json([
-            'user' => [
-                'id' => $user->id,
-                'email' => $user->email,
-                'role' => $user->role,
-            ],
+            'user' => new UserResource($user->load('profile')),
             'plainTextToken' => $token,
         ]);
     }

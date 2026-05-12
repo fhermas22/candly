@@ -4,7 +4,7 @@
  * Wraps authenticated pages.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useLocation,
@@ -15,16 +15,18 @@ import {
   Route,
   Link,
 } from "react-router";
+import { auth } from "../../../utils/auth.js";
+import { useNotifications } from "../../../hooks/useNotifications";
 
 import CandidateDashboard from "../../../pages/CandidateDashboard";
 import { ROUTES } from "../../../routes/paths";
 
-// ─── Mock auth context (replace with real context when API is ready) ──────────
+// ─── Generic fallback (never display real-person names) ──────────
 const MOCK_USER = {
-  name: "Hermas Francisco",
-  email: "hermas@candly.io",
+  name: "Candidat",
+  email: "candidat@candly.io",
   role: "candidate", // "candidate" | "admin"
-  avatarInitials: "HF",
+  avatarInitials: "CD",
   avatarColor: "#22D3EE",
 };
 
@@ -32,8 +34,9 @@ const MOCK_USER = {
 const CANDIDATE_NAV = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Tableau de bord",
     href: ROUTES.DASHBOARD,
+
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -45,7 +48,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "jobs",
-    label: "Job Search",
+    label: "Recherche d’offres",
     href: ROUTES.OFFRES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -56,7 +59,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "applications",
-    label: "My Applications",
+    label: "Mes candidatures",
     href: ROUTES.CANDIDATURES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -68,7 +71,7 @@ const CANDIDATE_NAV = [
   },
   {
     id: "profile",
-    label: "My Profile",
+    label: "Mon profil",
     href: ROUTES.PROFIL,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -82,7 +85,7 @@ const CANDIDATE_NAV = [
 const ADMIN_NAV = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Tableau de bord",
     href: ROUTES.ADMIN,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -92,7 +95,7 @@ const ADMIN_NAV = [
   },
   {
     id: "jobs-admin",
-    label: "Job Management",
+    label: "Gestion des offres",
     href: ROUTES.ADMIN_OFFRES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -104,7 +107,7 @@ const ADMIN_NAV = [
   },
   {
     id: "users",
-    label: "Candidate Management",
+    label: "Gestion des candidats",
     href: ROUTES.ADMIN_CANDIDATS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -116,7 +119,7 @@ const ADMIN_NAV = [
   },
   {
     id: "applications-admin",
-    label: "Application Review",
+    label: "Revue des candidatures",
     href: ROUTES.ADMIN_CANDIDATURES,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 shrink-0" width={20} height={20} aria-hidden>
@@ -241,17 +244,23 @@ function UserAvatar({ user, size = "md" }) {
     lg: "w-11 h-11 text-base",
   };
 
+  const hasPhoto = user.profile?.photo_url;
+
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-heading font-bold shrink-0`}
+      className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-heading font-bold shrink-0 overflow-hidden`}
       style={{
-        background: `linear-gradient(135deg, ${user.avatarColor}33 0%, ${user.avatarColor}55 100%)`,
+        background: hasPhoto ? "transparent" : `linear-gradient(135deg, ${user.avatarColor}33 0%, ${user.avatarColor}55 100%)`,
         border: `1.5px solid ${user.avatarColor}55`,
         color: user.avatarColor,
         boxShadow: `0 0 10px ${user.avatarColor}25`,
       }}
     >
-      {user.avatarInitials}
+      {hasPhoto ? (
+        <img src={user.profile.photo_url} alt={user.displayName || "User"} className="w-full h-full object-cover" />
+      ) : (
+        user.avatarInitials
+      )}
     </div>
   );
 }
@@ -263,18 +272,27 @@ function Navbar({
   isSidebarOpen,
   breadcrumbLabel = "Tableau de bord",
   onOpenSettings,
+  theme,
+  onToggleTheme,
 }) {
+
+
   const [notifOpen, setNotifOpen] = useState(false);
 
+  const { notifications, dismissNotification } = useNotifications();
+  const notificationCount = notifications.length;
+
+
   const roleBadge = user.role === "admin"
-    ? { label: "Admin", color: "#10B981" }
+    ? { label: "Administrateur", color: "#10B981" }
     : { label: "Candidat", color: "#22D3EE" };
+
 
   return (
     <header
       className="fixed top-0 left-0 right-0 h-16 z-40 flex items-center px-4 gap-4"
       style={{
-        background: "rgba(2, 6, 23, 0.88)",
+        background: "var(--surface-header)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(34, 211, 238, 0.07)",
@@ -318,8 +336,37 @@ function Navbar({
       </div>
 
       <div className="ml-auto flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors"
+          style={{ color: "var(--text-muted)" }}
+          aria-label={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+          title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+        >
+          {theme === 'dark' ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden>
+              <path d="M12 3a1 1 0 0 0 0 2" strokeLinecap="round" />
+              <path d="M4.2 4.2l1.4 1.4" strokeLinecap="round" />
+              <path d="M3 12a1 1 0 0 0 2 0" strokeLinecap="round" />
+              <path d="M4.2 19.8l1.4-1.4" strokeLinecap="round" />
+              <path d="M12 21a1 1 0 0 0 0-2" strokeLinecap="round" />
+              <path d="M19.8 19.8l-1.4-1.4" strokeLinecap="round" />
+              <path d="M21 12a1 1 0 0 0-2 0" strokeLinecap="round" />
+              <path d="M19.8 4.2l-1.4 1.4" strokeLinecap="round" />
+              <circle cx="12" cy="12" r="4" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden>
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" strokeLinejoin="round" strokeLinecap="round" />
+            </svg>
+          )}
+        </button>
+
         <div className="relative">
+
           <button
+
             type="button"
             onClick={() => setNotifOpen(!notifOpen)}
             className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-white/5"
@@ -331,10 +378,14 @@ function Navbar({
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" strokeLinecap="round" />
             </svg>
-            <span
-              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-              style={{ background: "#22D3EE", boxShadow: "0 0 6px rgba(34, 211, 238, 0.8)" }}
-            />
+            {notificationCount > 0 && (
+              <span
+                className="absolute top-1 right-1 grid place-items-center rounded-full px-1.5 text-[10px] font-semibold"
+                style={{ background: "#22D3EE", color: "#020617" }}
+              >
+                {notificationCount}
+              </span>
+            )}
           </button>
 
           <AnimatePresence>
@@ -346,22 +397,44 @@ function Navbar({
                 transition={{ duration: 0.18, ease: "easeOut" }}
                 className="absolute right-0 top-12 w-80 glass-modal p-4 z-50"
               >
-                <p className="font-heading text-sm font-semibold mb-3" style={{ color: "#f1f5f9" }}>
-                  Notifications
-                </p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-heading text-sm font-semibold" style={{ color: "#f1f5f9" }}>
+                    Notifications
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setNotifOpen(false)}
+                    className="text-xs text-slate-400 hover:text-white"
+                  >
+                    Fermer
+                  </button>
+                </div>
                 <div className="space-y-2">
-                  {[
-                    { msg: "Votre candidature a été examinée", time: "Il y a 2h", dot: "#22D3EE" },
-                    { msg: "Nouvelle offre correspondant à votre profil", time: "Il y a 5h", dot: "#10B981" },
-                  ].map((n, i) => (
-                    <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
-                      <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: n.dot }} />
-                      <div>
-                        <p className="text-sm" style={{ color: "#e2e8f0" }}>{n.msg}</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>{n.time}</p>
-                      </div>
+                  {notifications.length === 0 ? (
+                    <div className="rounded-2xl p-4 text-sm text-slate-400 bg-slate-950/60">
+                      Aucune notification récente.
                     </div>
-                  ))}
+                  ) : (
+                    notifications.map((item) => {
+                      const dotColor = item.type === "error" ? "#f43f5e" : item.type === "success" ? "#10B981" : "#22D3EE";
+                      return (
+                        <div key={item.id} className="flex items-start gap-3 p-3 rounded-2xl bg-slate-950/70 border border-slate-700/70">
+                          <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: dotColor }} />
+                          <div className="min-w-0">
+                            <p className="text-sm truncate" style={{ color: "#e2e8f0" }}>{item.message}</p>
+                            <p className="text-[11px] mt-1" style={{ color: "#64748b" }}>{item.time}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => dismissNotification(item.id)}
+                            className="text-[11px] text-slate-400 hover:text-slate-100"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </motion.div>
             )}
@@ -410,14 +483,14 @@ function Navbar({
 }
 
 /** Left Sidebar component */
-function Sidebar({ user, activeRoute, onNavClick }) {
+function Sidebar({ user, activeRoute, onNavClick, onSignOut }) {
   const navItems = user.role === "admin" ? ADMIN_NAV : CANDIDATE_NAV;
 
   return (
     <aside
       className="fixed top-0 left-0 bottom-0 w-64 z-30 flex flex-col pt-16"
       style={{
-        background: "rgba(1, 5, 17, 0.92)",
+        background: "var(--surface-sidebar)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
         borderRight: "1px solid rgba(34, 211, 238, 0.07)",
@@ -469,10 +542,11 @@ function Sidebar({ user, activeRoute, onNavClick }) {
           </div>
           <button
             type="button"
+            onClick={onSignOut}
             className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors shrink-0"
             style={{ color: "#64748b" }}
-          title="Sign Out"
-            aria-label="Sign Out"
+            title="Se déconnecter"
+            aria-label="Se déconnecter"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" width={16} height={16} aria-hidden>
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round" />
@@ -500,17 +574,53 @@ export default function MainLayout({
   breadcrumbLabel,
 }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light');
+
+  const onToggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('candly-theme', next);
+    setTheme(next);
+  };
+
   const location = useLocation();
   const navigate = useNavigate();
 
   const currentRoute = location.pathname;
+  const storedUser = auth.getUser();
+  const sessionRole = storedUser?.role ?? userRole;
+  const user = {
+    ...MOCK_USER,
+    role: sessionRole,
+    name: storedUser?.displayName ?? MOCK_USER.name,
+    email: storedUser?.email ?? MOCK_USER.email,
+    avatarInitials: storedUser?.avatarInitials ?? MOCK_USER.avatarInitials,
+    avatarColor: storedUser?.avatarColor ?? MOCK_USER.avatarColor,
+    profile: storedUser?.profile || null,
+  };
 
-  const user = { ...MOCK_USER, role: userRole };
+  const handleSignOut = () => {
+    auth.logout();
+    navigate(ROUTES.AUTH, { replace: true });
+  };
+
+  useEffect(() => {
+    if (!auth.isAuthenticated()) {
+      navigate(ROUTES.AUTH, { replace: true });
+      return;
+    }
+
+    if (storedUser?.role && storedUser.role !== userRole) {
+      const fallback = storedUser.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD;
+      navigate(fallback, { replace: true });
+    }
+  }, [navigate, userRole, storedUser?.role]);
 
   const navItems = user.role === "admin" ? ADMIN_NAV : CANDIDATE_NAV;
   const resolvedBreadcrumb =
     breadcrumbLabel ??
     navItems.find((item) => item.href === currentRoute)?.label ??
+    navItems.find((item) => currentRoute.startsWith(item.href))?.label ??
     "Tableau de bord";
 
   const closeMobileSidebar = () => {
@@ -524,20 +634,25 @@ export default function MainLayout({
   const content = children ?? <Outlet />;
 
   return (
-    <div className="min-h-screen" style={{ background: "#020617" }}>
+    <div className="min-h-screen" style={{ background: "var(--app-bg)" }}>
+
       <Navbar
         user={user}
         onMenuToggle={() => setMobileSidebarOpen((prev) => !prev)}
         isSidebarOpen={mobileSidebarOpen}
         breadcrumbLabel={resolvedBreadcrumb}
         onOpenSettings={handleOpenSettings}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
       />
+
 
       <div className="hidden lg:block">
         <Sidebar
           user={user}
           activeRoute={currentRoute}
           onNavClick={closeMobileSidebar}
+          onSignOut={handleSignOut}
         />
       </div>
 
@@ -566,6 +681,7 @@ export default function MainLayout({
                 user={user}
                 activeRoute={currentRoute}
                 onNavClick={closeMobileSidebar}
+                onSignOut={handleSignOut}
               />
             </motion.div>
           </>
