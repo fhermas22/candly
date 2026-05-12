@@ -6,7 +6,9 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router";
 import api from "../../utils/api";
+import { ROUTES } from "../../routes/paths";
 
 // ─── CONFIGURATION & HELPERS ──────────────────────────────────────────────────
 
@@ -195,13 +197,13 @@ export default function CandidateDashboard() {
             Bonjour, voici l'état de vos candidatures
           </p>
         </div>
-        <button className="btn-primary text-sm">
+        <Link to={ROUTES.OFFRES} className="btn-primary text-sm inline-flex items-center">
           <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
           </svg>
           Rechercher des offres
-        </button>
+        </Link>
       </motion.div>
 
       {/* Stats row */}
