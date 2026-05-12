@@ -16,6 +16,7 @@ import {
   Link,
 } from "react-router";
 import { auth } from "../../../utils/auth.js";
+import { useNotifications } from "../../../hooks/useNotifications";
 
 import CandidateDashboard from "../../../pages/CandidateDashboard";
 import { ROUTES } from "../../../routes/paths";
@@ -267,6 +268,8 @@ function Navbar({
   onOpenSettings,
 }) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const { notifications, dismissNotification } = useNotifications();
+  const notificationCount = notifications.length;
 
   const roleBadge = user.role === "admin"
     ? { label: "Administrateur", color: "#10B981" }
@@ -335,10 +338,14 @@ function Navbar({
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" strokeLinecap="round" />
             </svg>
-            <span
-              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-              style={{ background: "#22D3EE", boxShadow: "0 0 6px rgba(34, 211, 238, 0.8)" }}
-            />
+            {notificationCount > 0 && (
+              <span
+                className="absolute top-1 right-1 grid place-items-center rounded-full px-1.5 text-[10px] font-semibold"
+                style={{ background: "#22D3EE", color: "#020617" }}
+              >
+                {notificationCount}
+              </span>
+            )}
           </button>
 
           <AnimatePresence>
@@ -350,22 +357,44 @@ function Navbar({
                 transition={{ duration: 0.18, ease: "easeOut" }}
                 className="absolute right-0 top-12 w-80 glass-modal p-4 z-50"
               >
-                <p className="font-heading text-sm font-semibold mb-3" style={{ color: "#f1f5f9" }}>
-                  Notifications
-                </p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-heading text-sm font-semibold" style={{ color: "#f1f5f9" }}>
+                    Notifications
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setNotifOpen(false)}
+                    className="text-xs text-slate-400 hover:text-white"
+                  >
+                    Fermer
+                  </button>
+                </div>
                 <div className="space-y-2">
-                  {[
-                    { msg: "Mise à jour de candidature", time: "Récemment", dot: "#22D3EE" },
-                    { msg: "Nouvelle opportunité", time: "Récemment", dot: "#10B981" },
-                  ].map((n, i) => (
-                    <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
-                      <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: n.dot }} />
-                      <div>
-                        <p className="text-sm" style={{ color: "#e2e8f0" }}>{n.msg}</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>{n.time}</p>
-                      </div>
+                  {notifications.length === 0 ? (
+                    <div className="rounded-2xl p-4 text-sm text-slate-400 bg-slate-950/60">
+                      Aucune notification récente.
                     </div>
-                  ))}
+                  ) : (
+                    notifications.map((item) => {
+                      const dotColor = item.type === "error" ? "#f43f5e" : item.type === "success" ? "#10B981" : "#22D3EE";
+                      return (
+                        <div key={item.id} className="flex items-start gap-3 p-3 rounded-2xl bg-slate-950/70 border border-slate-700/70">
+                          <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: dotColor }} />
+                          <div className="min-w-0">
+                            <p className="text-sm truncate" style={{ color: "#e2e8f0" }}>{item.message}</p>
+                            <p className="text-[11px] mt-1" style={{ color: "#64748b" }}>{item.time}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => dismissNotification(item.id)}
+                            className="text-[11px] text-slate-400 hover:text-slate-100"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </motion.div>
             )}
@@ -542,6 +571,7 @@ export default function MainLayout({
   const resolvedBreadcrumb =
     breadcrumbLabel ??
     navItems.find((item) => item.href === currentRoute)?.label ??
+    navItems.find((item) => currentRoute.startsWith(item.href))?.label ??
     "Tableau de bord";
 
   const closeMobileSidebar = () => {
