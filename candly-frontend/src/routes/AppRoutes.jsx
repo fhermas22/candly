@@ -7,7 +7,6 @@ import CandidateDashboard from "../pages/CandidateDashboard";
 import CandidateApplications from "../pages/CandidateApplications";
 import JobSearch from "../pages/JobSearch";
 import JobDetail from "../pages/JobDetail";
-import PlaceholderPage from "../pages/PlaceholderPage";
 import AdminPanel from "../pages/AdminPanel";
 import ProfileSettings from "../pages/ProfileSettings";
 import NotFound from "../pages/NotFound";
@@ -42,15 +41,15 @@ export default function AppRoutes() {
         />
         <Route
           path="offres"
-          element={<PlaceholderPage title="Gestion des offres" />}
+          element={<AdminPanel />}
         />
         <Route
           path="candidats"
-          element={<PlaceholderPage title="Gestion des candidats" />}
+          element={<AdminPanel />}
         />
         <Route
           path="candidatures"
-          element={<PlaceholderPage title="Revue des candidatures" />}
+          element={<AdminPanel />}
         />
       </Route>
 
