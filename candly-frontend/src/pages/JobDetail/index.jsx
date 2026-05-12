@@ -7,9 +7,10 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router";
 
-import { ROUTES } from "../../routes/paths";
+import { ROUTES, AUTH_MODE } from "../../routes/paths";
 import api from "../../utils/api";
 import { auth } from "../../utils/auth";
+import { useNotifications } from "../../hooks/useNotifications";
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function JobDetail() {
@@ -20,6 +21,7 @@ export default function JobDetail() {
   const [error, setError] = useState(null);
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
+  const { pushNotification } = useNotifications();
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -39,7 +41,7 @@ export default function JobDetail() {
 
   const handleApply = async () => {
     if (!auth.isAuthenticated()) {
-      navigate('/auth?mode=login'); // keep as-is (external redirect used in this page)
+      navigate(`${ROUTES.AUTH}?mode=${AUTH_MODE.LOGIN}`, { replace: true });
       return;
     }
 
@@ -47,9 +49,10 @@ export default function JobDetail() {
     try {
       await api.post('/candidate/applications', { job_id: jobId });
       setApplied(true);
+      pushNotification({ message: 'Votre candidature a bien été envoyée.', type: 'success' });
     } catch (err) {
       console.error('Failed to apply:', err);
-      alert('Erreur lors de la candidature');
+      pushNotification({ message: 'Erreur lors de l’envoi de la candidature.', type: 'error' });
     } finally {
       setApplying(false);
     }
