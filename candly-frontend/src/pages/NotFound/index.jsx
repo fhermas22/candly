@@ -5,7 +5,8 @@ export default function NotFound() {
   return (
     <div
       className="min-h-svh flex flex-col items-center justify-center px-6 text-center"
-      style={{ background: "#020617" }}
+      style={{ background: "var(--app-bg)" }}
+
     >
       <p className="text-sm font-semibold uppercase tracking-widest mb-2" style={{ color: "#22D3EE" }}>
         Erreur 404
