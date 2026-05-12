@@ -266,10 +266,16 @@ function Navbar({
   isSidebarOpen,
   breadcrumbLabel = "Tableau de bord",
   onOpenSettings,
+  theme,
+  onToggleTheme,
 }) {
+
+
   const [notifOpen, setNotifOpen] = useState(false);
+
   const { notifications, dismissNotification } = useNotifications();
   const notificationCount = notifications.length;
+
 
   const roleBadge = user.role === "admin"
     ? { label: "Administrateur", color: "#10B981" }
@@ -280,7 +286,7 @@ function Navbar({
     <header
       className="fixed top-0 left-0 right-0 h-16 z-40 flex items-center px-4 gap-4"
       style={{
-        background: "rgba(2, 6, 23, 0.88)",
+        background: "var(--surface-header)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(34, 211, 238, 0.07)",
@@ -324,7 +330,35 @@ function Navbar({
       </div>
 
       <div className="ml-auto flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors"
+          style={{ color: "var(--text-muted)" }}
+          aria-label={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+          title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+        >
+          {theme === 'dark' ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden>
+              <path d="M12 3a1 1 0 0 0 0 2" strokeLinecap="round" />
+              <path d="M4.2 4.2l1.4 1.4" strokeLinecap="round" />
+              <path d="M3 12a1 1 0 0 0 2 0" strokeLinecap="round" />
+              <path d="M4.2 19.8l1.4-1.4" strokeLinecap="round" />
+              <path d="M12 21a1 1 0 0 0 0-2" strokeLinecap="round" />
+              <path d="M19.8 19.8l-1.4-1.4" strokeLinecap="round" />
+              <path d="M21 12a1 1 0 0 0-2 0" strokeLinecap="round" />
+              <path d="M19.8 4.2l-1.4 1.4" strokeLinecap="round" />
+              <circle cx="12" cy="12" r="4" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden>
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" strokeLinejoin="round" strokeLinecap="round" />
+            </svg>
+          )}
+        </button>
+
         <div className="relative">
+
           <button
 
             type="button"
@@ -450,7 +484,7 @@ function Sidebar({ user, activeRoute, onNavClick, onSignOut }) {
     <aside
       className="fixed top-0 left-0 bottom-0 w-64 z-30 flex flex-col pt-16"
       style={{
-        background: "rgba(1, 5, 17, 0.92)",
+        background: "var(--surface-sidebar)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
         borderRight: "1px solid rgba(34, 211, 238, 0.07)",
@@ -534,6 +568,15 @@ export default function MainLayout({
   breadcrumbLabel,
 }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light');
+
+  const onToggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('candly-theme', next);
+    setTheme(next);
+  };
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -585,14 +628,18 @@ export default function MainLayout({
   const content = children ?? <Outlet />;
 
   return (
-    <div className="min-h-screen" style={{ background: "#020617" }}>
+    <div className="min-h-screen" style={{ background: "var(--app-bg)" }}>
+
       <Navbar
         user={user}
         onMenuToggle={() => setMobileSidebarOpen((prev) => !prev)}
         isSidebarOpen={mobileSidebarOpen}
         breadcrumbLabel={resolvedBreadcrumb}
         onOpenSettings={handleOpenSettings}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
       />
+
 
       <div className="hidden lg:block">
         <Sidebar
