@@ -1,0 +1,73 @@
+# ─────────────────────────────────────────────────────────
+# .gitignore for Candly project (monorepo)
+# ─────────────────────────────────────────────────────────
+
+# ── DOCKER & ENVIRONNEMENT ─────────────────────────────
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# ── LARAVEL (candly-api/) ──────────────────────────────
+# PHP dependencies
+candly-api/vendor/
+# Laravel environment file (contains secrets)
+candly-api/.env
+# User-uploaded files
+candly-api/storage/app/public/*
+# Application logs
+candly-api/storage/logs/*
+# Laravel Bootstrap cache
+candly-api/bootstrap/cache/*.php
+# SQLite development database (if used)
+candly-api/database/database.sqlite
+
+# ── REACT (candly-frontend/) ───────────────────────────
+# Node dependencies
+candly-frontend/node_modules/
+# Build output
+candly-frontend/dist/
+# Frontend environment files (contain secrets)
+candly-frontend/.env
+candly-frontend/.env.local
+candly-frontend/.env.production
+
+# ── OPERATING SYSTEMS ────────────────────────────
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# Linux
+*~
+
+# ── EDITORS & IDE ────────────────────────────────────
+# VS Code 
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+# JetBrains 
+.idea/
+*.iml
+# Vim
+*.swp
+*.swo
+*.swn
+
+# ── OTHERS ────────────────────────────────────────────
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Test coverage files
+/coverage
+/candly-api/coverage
+# Temporary files
+*.tmp
+*.temp
