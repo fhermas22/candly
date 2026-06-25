@@ -41,7 +41,7 @@ return new class extends Migration
             Schema::table('applications', function (Blueprint $table) {
                 $table->string('active_unique_key')
                     ->nullable()
-                    ->storedAs("IF(`deleted_at` IS NULL, CONCAT(`user_id`, '-', `job_id`), NULL)");
+                    ->virtualAs("IF(`deleted_at` IS NULL, CONCAT(`user_id`, '-', `job_id`), NULL)");
 
                 $table->unique('active_unique_key', 'applications_unique_active_user_job');
             });

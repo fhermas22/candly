@@ -1,0 +1,117 @@
+# ─────────────────────────────────────────────────────────
+# Docker Compose for Candly
+# Run : MySQL 8.0 + Laravel 13 + React 19
+# Usage : docker compose up -d
+# ─────────────────────────────────────────────────────────
+
+services:
+
+  # ── SERVICE 1 : MySQL Database ──────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: candly_mysql
+    restart: unless-stopped
+  
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: candly
+      MYSQL_USER: candly
+      MYSQL_PASSWORD: candly_password
+  
+    ports:
+      - "3306:3306"
+  
+    volumes:
+      - mysql_data:/var/lib/mysql
+  
+    networks:
+      - candly_network
+  
+    # Healthcheck for MySQL service
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── SERVICE 2 : Laravel API ─────────────────────────────
+  laravel:
+    build:
+      context: ./candly-api
+      dockerfile: Dockerfile
+  
+    container_name: candly_api
+    restart: unless-stopped
+  
+    environment:
+      # Laravel Environment Variables
+      APP_NAME: Candly
+      APP_ENV: local
+      APP_KEY: base64:GENERATE-ME=
+      APP_DEBUG: true
+      APP_URL: http://localhost:8000
+
+      # Database Configuration
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: candly
+      DB_USERNAME: candly
+      DB_PASSWORD: candly_password
+    
+      # Session configuration (uses the database)
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    
+      # Logs
+      LOG_CHANNEL: stack
+      LOG_LEVEL: debug
+  
+    ports:
+      - "8000:8000"
+  
+    volumes:
+      - ./candly-api:/var/www/html
+      - /var/www/html/vendor
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+  
+    networks:
+      - candly_network
+
+  # ── SERVICE 3 : React Frontend ──────────────────────────
+  react:
+    build:
+      context: ./candly-frontend
+      dockerfile: Dockerfile
+  
+    container_name: candly_frontend
+    restart: unless-stopped
+  
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api
+  
+    ports:
+      - "5173:5173"
+  
+    volumes:
+      - ./candly-frontend:/app
+      - /app/node_modules
+  
+    networks:
+      - candly_network
+
+# ── NETWORKS ────────────────────────────────────────────────
+networks:
+  candly_network:
+    name: candly_network
+    driver: bridge
+
+# ── PERSISTENT VOLUMES ────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local

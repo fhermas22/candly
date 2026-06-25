@@ -40,7 +40,10 @@ COPY . .
 # Step 8 : Generate the Laravel application key (if not already defined)
 RUN php artisan key:generate --no-interaction
 
-# Step 9 : Set permissions on Laravel directories
+# Step 9 : Create the Laravel storage link (if not already defined)
+RUN php artisan storage:link --no-interaction
+
+# Step 10 : Set permissions on Laravel directories
 RUN chown -R www-data:www-data \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache \
@@ -48,8 +51,8 @@ RUN chown -R www-data:www-data \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache
 
-# Step 10 : Documenting the listening port
+# Step 11 : Documenting the listening port
 EXPOSE 8000
 
-# Step 11 : Start command
+# Step 12 : Start command
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
