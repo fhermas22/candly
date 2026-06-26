@@ -13,7 +13,9 @@ Candly is a full-stack recruitment platform that connects candidates with job op
 - `candly-api/` — Laravel application source code, routes, controllers, services, repositories, and API documentation.
 - `candly-frontend/` — React SPA source code, Vite config, and frontend environment setup.
 - `docker-compose.yml` — Docker Compose orchestration for the full stack.
+- `LICENSE` — project licensing terms (BSD 3-Clause License).
 - `notes-devops-candly.md` — project-specific DevOps notes.
+- `sprints/` — project sprint retrospective notes.
 
 ## Key features
 
