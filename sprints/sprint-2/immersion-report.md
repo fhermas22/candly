@@ -6,7 +6,7 @@ Compte-rendu d'analyse - Hermas Francisco
 * **Impact DevOps :** Ce problème met en évidence l'absence d'un filet de sécurité automatisé (CI/CD). Le lead dev a validé visuellement sans tester l'impact réel en isolation.
 
 ## 2. Assimilation Théorique (Pyramide des Tests)
-* **Concept clé :** L'anomalie aurait dû être capturée à la base de la pyramide (Test d'intégration/Feature sur l'endpoint `POST /api/register`).
+* **Concept clé :** L'anomalie aurait dû être capturée à la base de la pyramide (Test d'intégration/Feature sur l'endpoint `POST /api/auth/register`).
 * **Règle du coût d'un bug :** Détecté en phase de développement, le coût est de x1 (quelques minutes pour corriger la faute de frappe). En production, le coût passe à x100 (66 heures de rupture de service, perte de clients, impact sur la réputation).
 
 ## 3. Audit Technique du Code Existant

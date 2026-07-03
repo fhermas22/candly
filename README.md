@@ -1,5 +1,7 @@
 # Candly
 
+[![CI — Candly](https://github.com/fhermas22/candly/actions/workflows/ci.yml/badge.svg)](https://github.com/fhermas22/candly/actions/workflows/ci.yml)
+
 Candly is a full-stack recruitment platform that connects candidates with job opportunities through a Laravel API backend and a React/Vite frontend.
 
 ## Project overview
@@ -10,6 +12,7 @@ Candly is a full-stack recruitment platform that connects candidates with job op
 
 ## Repository structure
 
+- `.github/` — GitHub Actions CI/CD workflows.
 - `candly-api/` — Laravel application source code, routes, controllers, services, repositories, and API documentation.
 - `candly-frontend/` — React SPA source code, Vite config, and frontend environment setup.
 - `docker-compose.yml` — Docker Compose orchestration for the full stack.
