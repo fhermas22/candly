@@ -16,7 +16,7 @@ describe('Register — POST /api/auth/register', function () {
             'last_name' => 'Martin',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $this->assertDatabaseHas('users', [
             'email' => 'jean.martin@exemple.com',
             'role' => 'candidate',
