@@ -37,6 +37,9 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Step 7 : Copy the rest of the source code
 COPY . .
 
+# Step 7.5 : Copy the env example file to .env before generating the key
+RUN cp .env.example .env
+
 # Step 8 : Generate the Laravel application key (if not already defined)
 RUN php artisan key:generate --no-interaction
 
