@@ -18,7 +18,7 @@ Route::prefix('auth')->middleware('throttle:10,1')->group(function (): void {
 Route::get('jobs', [JobController::class, 'index']);
 Route::get('jobs/{jobId}', [JobController::class, 'show']);
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function (): void {
     // Candidate endpoints.
     Route::get('candidate/applications', [ApplicationController::class, 'myActive']);
     Route::post('candidate/applications', [ApplicationController::class, 'apply']);
