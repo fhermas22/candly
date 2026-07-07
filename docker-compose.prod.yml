@@ -1,0 +1,88 @@
+# ────────────────────────────────────────────────────────────────
+# Production Docker Compose for Candly
+# Run : MySQL 8.0 + Laravel 13 + React 19
+# Usage : docker compose -f docker-compose.prod.yml up -d --build
+# ────────────────────────────────────────────────────────────────
+
+services:
+  # ==================== MySQL ==================== #
+  mysql:
+    image: mysql:8.0
+    container_name: candly-mysql-prod
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - candly-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${DB_ROOT_PASSWORD}",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ==================== Laravel API ==================== #
+  laravel:
+    build:
+      context: ./candly-api
+      dockerfile: Dockerfile.prod
+    container_name: candly-laravel-prod
+    restart: unless-stopped
+    env_file: ./candly-api/.env
+    environment:
+      DB_HOST: mysql
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - candly-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ==================== React Frontend ==================== #
+  react:
+    build:
+      context: ./candly-frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_BASE_URL: ${FRONTEND_URL}/api
+    container_name: candly-react-prod
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - candly-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  candly-network:
+    driver: bridge
