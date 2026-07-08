@@ -29,21 +29,24 @@ WORKDIR /var/www/html
 
 # Step 6 : Copy dependencies (Docker cache)
 COPY composer.json composer.lock ./
+
+# Step 7 : Install PHP dependencies using Composer
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
-    --no-progress
+    --no-progress \
+    --no-scripts
 
-# Step 7 : Copy the application source code
+# Step 8 : Copy the application source code
 COPY . .
 
-# Step 8 : Generate the Laravel application cache configurations
+# Step 9 : Generate the Laravel application cache configurations
 RUN php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
 
-# Step 9 : Set permissions for storage and bootstrap/cache directories
+# Step 10 : Set permissions for storage and bootstrap/cache directories
 RUN chown -R www-data:www-data \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache && \
@@ -51,8 +54,8 @@ RUN chown -R www-data:www-data \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache
 
-# Step 10 : Configure Nginx
+# Step 11 : Configure Nginx
 EXPOSE 8000
 
-# Step 11 : Start command
+# Step 12 : Start command
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
