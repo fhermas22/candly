@@ -7,6 +7,7 @@ const baseURL = typeof import.meta !== 'undefined' && import.meta.env
 
 const api = axios.create({
   baseURL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

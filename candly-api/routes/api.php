@@ -8,7 +8,35 @@ use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ProfileMediaController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
+// Health check endpoint for monitoring the API's health and database connectivity.
+Route::get('/health', function () {
+    $dbStatus = 'disconnected';
+    $dbLatency = null;
+
+    try {
+        $start = microtime(true);
+        DB::connection()->getPdo();
+        $dbLatency = round((microtime(true) - $start) * 1000, 2);
+        $dbStatus = 'connected';
+    } catch (\Exception $e) {
+        $dbStatus = 'error';
+    }
+
+    $isHealthy = $dbStatus === 'connected';
+
+    return response()->json([
+        'status'
+        => $isHealthy ? 'ok' : 'degraded',
+        'timestamp' => now()->toIso8601String(),
+        'services' => [
+            'database' => ['status' => $dbStatus, 'latency_ms' => $dbLatency],
+        ],
+    ], $isHealthy ? 200 : 503);
+});
+
+// Public endpoints (no authentication required).
 Route::prefix('auth')->middleware('throttle:10,1')->group(function (): void {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
@@ -18,7 +46,7 @@ Route::prefix('auth')->middleware('throttle:10,1')->group(function (): void {
 Route::get('jobs', [JobController::class, 'index']);
 Route::get('jobs/{jobId}', [JobController::class, 'show']);
 
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function (): void {
     // Candidate endpoints.
     Route::get('candidate/applications', [ApplicationController::class, 'myActive']);
     Route::post('candidate/applications', [ApplicationController::class, 'apply']);
@@ -43,4 +71,3 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
 // Signed media endpoints (no direct storage exposure).
 Route::get('profiles/{profile}/cv', [ProfileMediaController::class, 'cv'])->name('profiles.cv');
-
