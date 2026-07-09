@@ -79,10 +79,13 @@ services:
       timeout: 5s
       retries: 3
 
+#-------- Persistent Volumes --------#
 volumes:
   mysql_data:
     driver: local
 
+#-------- Networks --------#
 networks:
   candly-network:
+    name: candly-network
     driver: bridge
