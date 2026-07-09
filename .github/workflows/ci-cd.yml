@@ -2,7 +2,7 @@
 # Candly — CI/CD Pipeline
 # ────────────────────────────────────────────────────────────────────────
 
-name: CI — Candly
+name: CI/CD — Candly
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
   test-backend:
     name: Laravel Tests (Pest)
     runs-on: ubuntu-latest
-    
+
     services:
       mysql:
         image: mysql:8.0
@@ -39,7 +39,7 @@ jobs:
       - name: Step 2 - Configuring PHP 8.4 with required extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
           extensions: pdo_mysql, zip, gd, bcmath
           coverage: none
 
@@ -99,8 +99,8 @@ jobs:
       - name: Step 2 - Configuring Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
           cache-dependency-path: candly-frontend/package-lock.json
 
       - name: Step 3 - Install npm dependencies
@@ -150,3 +150,43 @@ jobs:
           tags: candly-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # JOB 4 — Deploy to VPS (main only)
+  # ═══════════════════════════════════════════════════════════════════════
+  deploy:
+    name: Server Deployment
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend, build-docker]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+
+    steps:
+      - name: Step 1 - Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Step 2 - Deployment via SSH on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/deployer/candly/candly/
+            git pull origin main
+            docker compose -f docker-compose.prod.yml build --no-cache
+            docker compose -f docker-compose.prod.yml up -d
+            sleep 15
+            docker compose -f docker-compose.prod.yml exec -T laravel \
+              php artisan migrate --force
+            docker compose -f docker-compose.prod.yml exec -T laravel \
+              php artisan cache:clear
+            docker system prune -f
+
+      - name: Step 3 - Post-deployment health check
+        run: |
+          sleep 30
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://${{ secrets.CANDLY_DOMAIN }}/api/health)
+          [ "$STATUS" = "200" ] && echo "OK" || (echo "FAIL HTTP $STATUS"; exit 1)
