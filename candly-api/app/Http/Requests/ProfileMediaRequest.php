@@ -24,8 +24,8 @@ class ProfileMediaRequest extends FormRequest
             'photo' => [
                 'nullable',
                 'image',
-                'mimes:jpeg,png,jpg',
-                'mimetypes:image/jpeg,image/png',
+                'mimes:jpeg,jpg,png,webp',
+                'mimetypes:image/jpeg,image/png,image/webp',
                 'max:2048',
             ],
             'cv' => [
