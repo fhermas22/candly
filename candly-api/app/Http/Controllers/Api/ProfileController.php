@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileMediaRequest;
+use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Profile;
 use App\Services\MediaService;
@@ -40,6 +41,31 @@ class ProfileController extends Controller
         $this->media->updateProfileMedia($profile, $photo, $cv);
 
         return response()->json(new UserResource($user->load('profile')), 200);
+    }
+
+    public function update(ProfileUpdateRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user) {
+            throw new AuthorizationException();
+        }
+
+        $profile = Profile::query()->firstOrCreate(
+            ['user_id' => (int) $user->id],
+            ['first_name' => '', 'last_name' => '']
+        );
+
+        $profile->fill($request->only([
+            'first_name',
+            'last_name',
+            'title',
+            'bio',
+            'location',
+            'linkedin',
+        ]));
+        $profile->save();
+
+        return response()->json(new UserResource($user->fresh()->load('profile')), 200);
     }
 }
 
