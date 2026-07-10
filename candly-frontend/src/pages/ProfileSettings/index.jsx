@@ -11,10 +11,12 @@ import { auth } from "../../utils/auth";
 import { useNotifications } from "../../hooks/useNotifications";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
+const PHOTO_MAX_SIZE_MB = 2;
 const CV_MAX_SIZE_MB = 5;
 const ACCEPTED_IMG   = ["image/jpeg", "image/png", "image/webp"];
 const ACCEPTED_IMG_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 const ACCEPTED_PDF_EXTENSIONS = [".pdf"];
+
 
 const isAcceptedImageFile = (file) => {
   if (!file) return false;
@@ -37,10 +39,10 @@ const buildInitialProfile = () => {
     firstName:   storedUser?.profile?.first_name || "",
     lastName:    storedUser?.profile?.last_name || "",
     email:       storedUser?.email || "",
-    title:       "",
+    title:       storedUser?.profile?.title || "",
     bio:         storedUser?.profile?.bio || "",
-    location:    "",
-    linkedin:    "",
+    location:    storedUser?.profile?.location || "",
+    linkedin:    storedUser?.profile?.linkedin || "",
     initials:    storedUser?.avatarInitials || "CC",
     avatarColor: storedUser?.avatarColor || "#22D3EE",
     photoUrl:    storedUser?.profile?.photo_url || null,
@@ -148,6 +150,7 @@ function CompletionBar({ pct }) {
 function AvatarUpload({ initials, color, photoUrl, onUpload }) {
   const [isHovered, setIsHovered] = useState(false);
   const [glowing,   setGlowing]   = useState(false);
+  const [imgError, setImgError] = useState(false);
   const inputRef = useRef(null);
   const isDarkMode = document.documentElement.dataset.theme === 'dark';
 
@@ -160,15 +163,24 @@ function AvatarUpload({ initials, color, photoUrl, onUpload }) {
   const handleFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Frontend size validation for better UX (backend also enforces).
+    if (file.size > PHOTO_MAX_SIZE_MB * 1024 * 1024) {
+      alert(`La photo ne doit pas dépasser ${PHOTO_MAX_SIZE_MB} Mo.`);
+      return;
+    }
+
     if (!isAcceptedImageFile(file)) {
       alert("Format non supporté. Utilisez JPG, PNG ou WebP.");
       return;
     }
 
     const url = URL.createObjectURL(file);
+    setImgError(false);
     onUpload({ file, url });
     console.log("[Candly] Avatar upload →", file.name);
   };
+
 
   return (
     <div className="relative">
@@ -191,9 +203,19 @@ function AvatarUpload({ initials, color, photoUrl, onUpload }) {
         }}
       >
         {/* Photo or Initials */}
-        {photoUrl ? (
-          <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+        {photoUrl && !imgError ? (
+          <img
+            src={photoUrl}
+            alt="Profile"
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              console.warn('[Candly] profile photo failed to load', photoUrl, e?.nativeEvent?.type);
+              setImgError(true);
+            }}
+          />
         ) : (
+
           <span className="font-heading font-black text-3xl" style={{ color }}>
             {initials}
           </span>
@@ -413,10 +435,10 @@ export default function ProfileSettings() {
             firstName:   user.profile.first_name || "",
             lastName:    user.profile.last_name || "",
             email:       user.email || "",
-            title:       "",
+            title:       user.profile.title || "",
             bio:         user.profile.bio || "",
-            location:    "",
-            linkedin:    "",
+            location:    user.profile.location || "",
+            linkedin:    user.profile.linkedin || "",
             initials:    user.avatarInitials || "CC",
             avatarColor: user.avatarColor || "#22D3EE",
             photoUrl:    user.profile.photo_url || null,
@@ -466,16 +488,30 @@ export default function ProfileSettings() {
       };
 
       const formData = new FormData();
-      if (photoFile) {
+    if (photoFile) {
         formData.append("photo", photoFile);
+        console.log("[ProfileSettings] Adding photo to FormData:", {
+          name: photoFile.name,
+          size: photoFile.size,
+          type: photoFile.type,
+        });
       }
+
       if (cvFile?.file) {
         formData.append("cv", cvFile.file);
+        console.log("[ProfileSettings] Adding CV to FormData:", {
+          name: cvFile.file.name,
+          size: cvFile.file.size,
+          type: cvFile.file.type,
+        });
       }
+
+      const hasMedia = formData.has("photo") || formData.has("cv");
+      console.log("[ProfileSettings] HasMedia:", hasMedia);
 
       const [profileResponse, mediaResponse] = await Promise.all([
         api.patch("/profile", profilePayload),
-        formData.has("photo") || formData.has("cv")
+        hasMedia
           ? api.post("/profile/media", formData, {
               headers: {
                 "Content-Type": "multipart/form-data",
@@ -485,7 +521,13 @@ export default function ProfileSettings() {
       ]);
 
       const responseData = mediaResponse?.data ?? profileResponse?.data ?? null;
+      console.log("[ProfileSettings] Response data:", responseData);
+      
       if (responseData?.profile) {
+        console.log("[ProfileSettings] Updating profile from response:", {
+          photoUrl: responseData.profile.photo_url,
+          cvUrl: responseData.profile.cv_url,
+        });
         setProfile((p) => ({
           ...p,
           photoUrl: responseData.profile.photo_url ?? p.photoUrl,
@@ -495,7 +537,7 @@ export default function ProfileSettings() {
 
       const storedUser = auth.getUser();
       if (storedUser) {
-        auth.setUser({
+        const updatedUser = {
           ...storedUser,
           profile: {
             ...(storedUser.profile || {}),
@@ -508,7 +550,19 @@ export default function ProfileSettings() {
             photo_url: responseData?.profile?.photo_url ?? storedUser.profile?.photo_url ?? null,
             cv_url: responseData?.profile?.cv_url ?? storedUser.profile?.cv_url ?? null,
           },
-        });
+        };
+        console.log("[ProfileSettings] Storing updated user:", updatedUser);
+        auth.setUser(updatedUser);
+        
+        setProfile((p) => ({
+          ...p,
+          title: profilePayload.title,
+          bio: profilePayload.bio,
+          location: profilePayload.location,
+          linkedin: profilePayload.linkedin,
+          photoUrl: responseData?.profile?.photo_url ?? p.photoUrl,
+          cvUrl: responseData?.profile?.cv_url ?? p.cvUrl,
+        }));
       }
 
       setPhotoFile(null);
@@ -518,7 +572,10 @@ export default function ProfileSettings() {
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error("Failed to save profile:", err);
-      const errorMsg = err.response?.data?.message || "Impossible d'enregistrer votre profil. Réessayez.";
+      console.error("Error response status:", err.response?.status);
+      console.error("Error response data:", err.response?.data);
+      
+      const errorMsg = err.response?.data?.message || err.response?.data?.errors || "Impossible d'enregistrer votre profil. Réessayez.";
       setError(errorMsg);
       pushNotification({ message: errorMsg, type: "error" });
     } finally {
