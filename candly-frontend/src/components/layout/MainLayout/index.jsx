@@ -244,7 +244,8 @@ function UserAvatar({ user, size = "md" }) {
     lg: "w-11 h-11 text-base",
   };
 
-  const hasPhoto = user.profile?.photo_url;
+  const [imgError, setImgError] = useState(false);
+  const hasPhoto = user.profile?.photo_url && !imgError;
 
   return (
     <div
@@ -257,7 +258,12 @@ function UserAvatar({ user, size = "md" }) {
       }}
     >
       {hasPhoto ? (
-        <img src={user.profile.photo_url} alt={user.displayName || "User"} className="w-full h-full object-cover" />
+        <img 
+          src={user.profile.photo_url} 
+          alt={user.displayName || "User"} 
+          className="w-full h-full object-cover" 
+          onError={() => setImgError(true)}
+        />
       ) : (
         user.avatarInitials
       )}
