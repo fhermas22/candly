@@ -1,6 +1,6 @@
 # Candly
 
-[![CI — Candly](https://github.com/fhermas22/candly/actions/workflows/ci.yml/badge.svg)](https://github.com/fhermas22/candly/actions/workflows/ci.yml)
+[![CI/CD — Candly](https://github.com/fhermas22/candly/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/fhermas22/candly/actions/workflows/ci-cd.yml)
 
 Candly is a full-stack recruitment platform that connects candidates with job opportunities through a Laravel API backend and a React/Vite frontend.
 
@@ -8,16 +8,16 @@ Candly is a full-stack recruitment platform that connects candidates with job op
 
 - **Backend:** `candly-api` — Laravel 13, PHP 8.3+, Sanctum auth, MySQL data storage, OpenAPI docs.
 - **Frontend:** `candly-frontend` — React 19, Vite 8, Tailwind CSS, Axios API client.
-- **Infrastructure:** `docker-compose.yml` — MySQL, Laravel API, and React app with live code volume mounts.
+- **Infrastructure:** `docker-compose.yml` — local development stack; `docker-compose.prod.yml` — production deployment stack.
 
 ## Repository structure
 
 - `.github/` — GitHub Actions CI/CD workflows.
 - `candly-api/` — Laravel application source code, routes, controllers, services, repositories, and API documentation.
 - `candly-frontend/` — React SPA source code, Vite config, and frontend environment setup.
-- `docker-compose.yml` — Docker Compose orchestration for the full stack.
+- `docker-compose.yml` — local Docker Compose orchestration for the full stack.
+- `docker-compose.prod.yml` — production Docker Compose configuration for deployment.
 - `LICENSE` — project licensing terms (BSD 3-Clause License).
-- `notes-devops-candly.md` — project-specific DevOps notes.
 - `sprints/` — project sprint retrospective notes.
 
 ## Key features
@@ -118,6 +118,14 @@ docker compose up -d --build
 docker compose down
 ```
 
+### Production deployment
+
+For production-like deployments, use the production compose file:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file candly-api/.env up -d --build
+```
+
 ## Testing
 
 ### Backend tests
@@ -159,7 +167,9 @@ Important variables:
 ## Contribution and maintenance
 
 - Use `docker compose up -d --build` for development workflow.
+- Use `docker compose -f docker-compose.prod.yml up -d --build` for production-style deployment runs.
 - Keep `candly-api` and `candly-frontend` environment files in sync with the active deployment targets.
+- The CI/CD workflow in `.github/workflows/ci-cd.yml` validates backend tests, frontend linting/building, Docker image builds, and deployment steps.
 - For backend changes, rely on the Laravel service/repository layer and API route definitions in `candly-api/routes/api.php`.
 - For frontend changes, edit the React pages and components under `candly-frontend/src/`.
 
@@ -167,7 +177,7 @@ Important variables:
 
 - `candly-api/README.md` — backend-specific usage and setup details.
 - `candly-frontend/README.md` — frontend-specific usage and setup instructions.
-- `notes-devops-candly.md` — project DevOps notes and environment tips.
+- `sprints/` — DevOps sprint notes and environment tips.
 
 ## Author
 
