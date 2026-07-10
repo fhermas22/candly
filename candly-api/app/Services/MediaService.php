@@ -17,7 +17,7 @@ class MediaService
      */
     public function storeProfilePhoto(int $userId, UploadedFile $photo): string
     {
-        $filename = $this->buildFilename($userId, $photo, ['jpg', 'jpeg', 'png']);
+        $filename = $this->buildFilename($userId, $photo, ['jpg', 'jpeg', 'png', 'webp']);
 
         return $photo->storeAs('profiles/photos', $filename, 'public');
     }

@@ -67,6 +67,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function (): void {
     });
 
     Route::post('profile/media', [ProfileController::class, 'uploadMedia']);
+    Route::patch('profile', [ProfileController::class, 'update']);
 });
 
 // Signed media endpoints (no direct storage exposure).

@@ -13,17 +13,17 @@ import { ROUTES } from "../../routes/paths";
 // ─── CONFIGURATION & HELPERS ──────────────────────────────────────────────────
 
 const FILTERS = [
-  { id: "all",      label: "Toutes" },
-  { id: "pending",  label: "En attente" },
+  { id: "all", label: "Toutes" },
+  { id: "pending", label: "En attente" },
   { id: "accepted", label: "Acceptées" },
   { id: "rejected", label: "Refusées" },
 ];
 
 function getBadge(status) {
   const map = {
-    pending:  { label: "En attente",  cls: "badge-pending" },
-    accepted: { label: "✓ Acceptée",  cls: "badge-accepted" },
-    rejected: { label: "Refusée",     cls: "badge-rejected" },
+    pending: { label: "En attente", cls: "badge-pending" },
+    accepted: { label: "✓ Acceptée", cls: "badge-accepted" },
+    rejected: { label: "Refusée", cls: "badge-rejected" },
   };
   return map[status] ?? { label: status, cls: "badge-pending" };
 }
@@ -181,7 +181,8 @@ export default function CandidateDashboard() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-full overflow-x-hidden">
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -207,13 +208,16 @@ export default function CandidateDashboard() {
       </motion.div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6 max-w-full overflow-x-hidden">
+
         {stats.map((s, i) => <StatCard key={s.label} stat={s} index={i} />)}
       </div>
 
       {/* Main content */}
-      <div className="grid gap-5" style={{ gridTemplateColumns: "1fr 340px" }}>
+      <div className="grid gap-5 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_360px]" style={{ gridTemplateColumns: "1fr" }}>
+
         {/* Applications list */}
+
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-heading font-bold text-base" style={{ color: "#f1f5f9" }}>
@@ -227,8 +231,8 @@ export default function CandidateDashboard() {
                   className="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200"
                   style={{
                     background: filter === f.id ? "rgba(34,211,238,0.08)" : "transparent",
-                    color:      filter === f.id ? "#22D3EE" : "#64748b",
-                    border:     filter === f.id ? "1px solid rgba(34,211,238,0.25)" : "1px solid rgba(34,211,238,0.1)",
+                    color: filter === f.id ? "#22D3EE" : "#64748b",
+                    border: filter === f.id ? "1px solid rgba(34,211,238,0.25)" : "1px solid rgba(34,211,238,0.1)",
                   }}
                 >
                   {f.label}
@@ -259,20 +263,22 @@ export default function CandidateDashboard() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-5">
+        <aside className="hidden xl:block space-y-5">
+
+          {/* Première carte : Dernière activité */}
           <div className="glass-card p-5">
-            <h3 className="font-heading font-bold text-sm mb-4" style={{ color: "#f1f5f9" }}>
+            <h3 className="font-heading font-bold text-sm mb-4 text-slate-100">
               Dernière activité
             </h3>
             <div className="space-y-3">
               {applications.slice(0, 3).map((app) => (
                 <div key={app.id} className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#22D3EE" }} />
+                  <div className="w-2 h-2 rounded-full shrink-0 bg-cyan-400" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate" style={{ color: "#f1f5f9" }}>
+                    <p className="text-xs font-medium truncate text-slate-100">
                       Candidature pour {app.job_title}
                     </p>
-                    <p className="text-xs" style={{ color: "#64748b" }}>
+                    <p className="text-xs text-slate-500">
                       {new Date(app.applied_at).toLocaleDateString('fr-FR')}
                     </p>
                   </div>
@@ -281,18 +287,19 @@ export default function CandidateDashboard() {
             </div>
           </div>
 
+          {/* Deuxième carte : Offres recommandées */}
           <div className="glass-card p-5">
-            <h3 className="font-heading font-bold text-sm mb-4" style={{ color: "#f1f5f9" }}>
+            <h3 className="font-heading font-bold text-sm mb-4 text-slate-100">
               Offres recommandées
             </h3>
-            <p className="text-xs mb-4" style={{ color: "#64748b" }}>
+            <p className="text-xs mb-4 text-slate-500">
               Découvrez des opportunités qui correspondent à votre profil
             </p>
             <button className="btn-primary w-full text-sm">
               Explorer les offres
             </button>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );
