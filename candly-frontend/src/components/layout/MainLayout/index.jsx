@@ -272,8 +272,6 @@ function Navbar({
   isSidebarOpen,
   breadcrumbLabel = "Tableau de bord",
   onOpenSettings,
-  theme,
-  onToggleTheme,
 }) {
 
 
@@ -336,33 +334,6 @@ function Navbar({
       </div>
 
       <div className="ml-auto flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors"
-          style={{ color: "var(--text-muted)" }}
-          aria-label={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
-          title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
-        >
-          {theme === 'dark' ? (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden>
-              <path d="M12 3a1 1 0 0 0 0 2" strokeLinecap="round" />
-              <path d="M4.2 4.2l1.4 1.4" strokeLinecap="round" />
-              <path d="M3 12a1 1 0 0 0 2 0" strokeLinecap="round" />
-              <path d="M4.2 19.8l1.4-1.4" strokeLinecap="round" />
-              <path d="M12 21a1 1 0 0 0 0-2" strokeLinecap="round" />
-              <path d="M19.8 19.8l-1.4-1.4" strokeLinecap="round" />
-              <path d="M21 12a1 1 0 0 0-2 0" strokeLinecap="round" />
-              <path d="M19.8 4.2l-1.4 1.4" strokeLinecap="round" />
-              <circle cx="12" cy="12" r="4" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-4 h-4" aria-hidden>
-              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" strokeLinejoin="round" strokeLinecap="round" />
-            </svg>
-          )}
-        </button>
-
         <div className="relative">
 
           <button
@@ -574,14 +545,6 @@ export default function MainLayout({
   breadcrumbLabel,
 }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light');
-
-  const onToggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    localStorage.setItem('candly-theme', next);
-    setTheme(next);
-  };
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -642,8 +605,6 @@ export default function MainLayout({
         isSidebarOpen={mobileSidebarOpen}
         breadcrumbLabel={resolvedBreadcrumb}
         onOpenSettings={handleOpenSettings}
-        theme={theme}
-        onToggleTheme={onToggleTheme}
       />
 
 
