@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register route middleware aliases (Laravel 12 syntax).
         $middleware->alias([
             'role' => CheckRole::class,
+            'is_admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
