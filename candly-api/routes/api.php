@@ -47,13 +47,14 @@ Route::get('jobs', [JobController::class, 'index']);
 Route::get('jobs/{jobId}', [JobController::class, 'show']);
 
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function (): void {
+
     // Candidate endpoints.
     Route::get('candidate/applications', [ApplicationController::class, 'myActive']);
     Route::post('candidate/applications', [ApplicationController::class, 'apply']);
     Route::delete('candidate/applications/{applicationId}', [ApplicationController::class, 'withdraw']);
 
     // Admin endpoints.
-    Route::middleware('role:admin')->group(function (): void {
+    Route::middleware([\App\Http\Middleware\EnsureUserIsAdmin::class])->group(function (): void {
         Route::get('admin/applications/pending', [ApplicationController::class, 'pendingForAdmin']);
         Route::patch('admin/applications/{applicationId}/moderate', [ApplicationController::class, 'moderate']);
 
@@ -66,9 +67,10 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function (): void {
         Route::delete('admin/jobs/{jobId}', [JobController::class, 'destroy']);
     });
 
+
     Route::post('profile/media', [ProfileController::class, 'uploadMedia']);
     Route::patch('profile', [ProfileController::class, 'update']);
 });
 
-// Signed media endpoints (no direct storage exposure).
+// Signed media endpoints
 Route::get('profiles/{profile}/cv', [ProfileMediaController::class, 'cv'])->name('profiles.cv');
